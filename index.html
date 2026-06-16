@@ -122,71 +122,94 @@
             <p class="text-slate-400 text-lg md:text-xl">Discover highly-rated hidden gems. One click, endless possibilities.</p>
         </div>
 
-        <!-- Movie Skeleton (Loading State) -->
-        <div id="movie-skeleton" class="hidden w-full movie-card rounded-2xl overflow-hidden mb-8">
-            <div class="flex flex-col md:flex-row">
-                <div class="w-full md:w-80 h-[450px] skeleton"></div>
-                <div class="p-6 md:p-8 flex-1 space-y-4">
-                    <div class="h-10 w-3/4 skeleton rounded"></div>
-                    <div class="h-6 w-1/4 skeleton rounded"></div>
-                    <div class="flex gap-2">
-                        <div class="h-6 w-16 skeleton rounded"></div>
-                        <div class="h-6 w-16 skeleton rounded"></div>
+        <!-- Customization Filters (Task 2) -->
+        <div id="filters" class="w-full max-w-4xl bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50 mb-8 fade-in">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <i class="fas fa-sliders-h text-blue-400"></i> Customization Options
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Genre</label>
+                    <select id="filter-genre" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-slate-200">
+                        <option value="">All Genres</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Min Rating: <span id="rating-display" class="text-blue-400">0.0</span></label>
+                    <input type="range" id="filter-rating" min="0" max="10" step="0.5" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">From Year</label>
+                        <input type="number" id="filter-year-min" placeholder="1900" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-slate-200">
                     </div>
-                    <div class="space-y-2">
-                        <div class="h-4 w-full skeleton rounded"></div>
-                        <div class="h-4 w-full skeleton rounded"></div>
-                        <div class="h-4 w-2/3 skeleton rounded"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 pt-4">
-                        <div class="h-12 skeleton rounded"></div>
-                        <div class="h-12 skeleton rounded"></div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">To Year</label>
+                        <input type="number" id="filter-year-max" placeholder="2024" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-slate-200">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Movie Display -->
-        <div id="movie-container" class="hidden w-full movie-card rounded-2xl overflow-hidden shadow-2xl mb-8 relative">
-            <div class="flex flex-col md:flex-row">
-                <div class="w-full md:w-80 shrink-0 bg-slate-800 flex items-center justify-center min-h-[300px]">
-                    <img id="movie-poster" src="" alt="" class="w-full h-full object-cover opacity-0 transition-opacity duration-500">
-                    <div id="poster-placeholder" class="hidden absolute flex flex-col items-center text-slate-500">
-                        <i class="fas fa-film text-4xl mb-2"></i>
-                        <span class="text-xs">No Poster Available</span>
-                    </div>
-                </div>
-                <div class="p-6 md:p-10 flex-1">
-                    <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-                        <h2 id="movie-title" class="text-3xl md:text-4xl font-bold leading-tight"></h2>
-                        <span id="movie-rating" class="shrink-0 bg-yellow-500 text-black px-4 py-1.5 rounded-full font-black text-sm shadow-lg shadow-yellow-500/20"></span>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-2 mb-6" id="movie-genres"></div>
-                    
-                    <p id="movie-overview" class="text-slate-300 text-lg leading-relaxed mb-8"></p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm mb-8 border-t border-slate-700/50 pt-6">
-                        <div>
-                            <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Release Date</p>
-                            <p id="movie-date" class="text-slate-200 text-base"></p>
-                        </div>
-                        <div>
-                            <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Runtime</p>
-                            <p id="movie-runtime" class="text-slate-200 text-base"></p>
+        <!-- Movie Skeletons Grid (Task 4) -->
+        <div id="movie-skeleton" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+        </div>
+
+        <!-- Movie Recommendations Grid (Task 4) -->
+        <div id="recommendations-grid" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+
+        <!-- Single Movie Detail Modal (Task 4) -->
+        <div id="movie-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
+            <div class="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto movie-card rounded-2xl shadow-2xl">
+                <button id="close-modal" class="fixed md:absolute top-4 right-4 z-[110] bg-slate-900/80 hover:bg-slate-700 p-3 rounded-full transition-colors border border-slate-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                <div class="flex flex-col md:flex-row">
+                    <div class="w-full md:w-80 shrink-0 bg-slate-800 flex items-center justify-center min-h-[400px] relative">
+                        <img id="movie-poster" src="" alt="" class="w-full h-full object-cover opacity-0 transition-opacity duration-500">
+                        <div id="poster-placeholder" class="hidden absolute flex flex-col items-center text-slate-500">
+                            <i class="fas fa-film text-4xl mb-2"></i>
+                            <span class="text-xs">No Poster Available</span>
                         </div>
                     </div>
+                    <div class="p-6 md:p-10 flex-1">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+                            <h2 id="movie-title" class="text-3xl md:text-4xl font-bold leading-tight"></h2>
+                            <span id="movie-rating" class="shrink-0 bg-yellow-500 text-black px-4 py-1.5 rounded-full font-black text-sm shadow-lg shadow-yellow-500/20"></span>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2 mb-6" id="movie-genres"></div>
+                        
+                        <p id="movie-overview" class="text-slate-300 text-lg leading-relaxed mb-8"></p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm mb-8 border-t border-slate-700/50 pt-6">
+                            <div>
+                                <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Release Date</p>
+                                <p id="movie-date" class="text-slate-200 text-base"></p>
+                            </div>
+                            <div>
+                                <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Runtime</p>
+                                <p id="movie-runtime" class="text-slate-200 text-base"></p>
+                            </div>
+                        </div>
 
-                    <div class="mb-8">
-                        <p class="text-slate-500 uppercase tracking-tighter font-bold mb-2">Top Cast</p>
-                        <p id="movie-cast" class="text-slate-200"></p>
-                    </div>
+                        <div class="mb-8">
+                            <p class="text-slate-500 uppercase tracking-tighter font-bold mb-2">Top Cast</p>
+                            <p id="movie-cast" class="text-slate-200"></p>
+                        </div>
 
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <a id="movie-trailer" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-all px-8 py-4 rounded-xl font-bold text-white btn-hover-effect">
-                            <i class="fab fa-youtube text-xl"></i> Watch Trailer
-                        </a>
-                        <p id="no-trailer-msg" class="hidden text-slate-500 italic text-sm self-center">Trailer currently unavailable</p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a id="movie-trailer" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-all px-8 py-4 rounded-xl font-bold text-white btn-hover-effect">
+                                <i class="fab fa-youtube text-xl"></i> Watch Trailer
+                            </a>
+                            <p id="no-trailer-msg" class="hidden text-slate-500 italic text-sm self-center">Trailer currently unavailable</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -208,7 +231,10 @@
     <script type="module">
         // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { 
+            getFirestore, doc, setDoc, getDoc, collection, getCountFromServer, 
+            query, where, limit, getDocs, orderBy 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // --- CONFIGURATION ---
         const firebaseConfig = {
@@ -232,13 +258,43 @@
         const generateBtn = document.getElementById('generate-btn');
         const btnText = document.getElementById('btn-text');
         const btnLoader = document.getElementById('btn-loader');
-        const movieContainer = document.getElementById('movie-container');
+        const recommendationsGrid = document.getElementById('recommendations-grid');
+        const movieModal = document.getElementById('movie-modal');
+        const closeModalBtn = document.getElementById('close-modal');
         const movieSkeleton = document.getElementById('movie-skeleton');
         const welcomeUi = document.getElementById('welcome-ui');
         const cacheCountEl = document.getElementById('cache-count');
         const cacheLoader = document.getElementById('cache-loader');
         const errorBanner = document.getElementById('error-banner');
         const errorMessage = document.getElementById('error-message');
+        
+        // Filter Elements (Task 2)
+        const filterGenre = document.getElementById('filter-genre');
+        const filterRating = document.getElementById('filter-rating');
+        const ratingDisplay = document.getElementById('rating-display');
+        const filterYearMin = document.getElementById('filter-year-min');
+        const filterYearMax = document.getElementById('filter-year-max');
+
+        filterRating.addEventListener('input', (e) => ratingDisplay.innerText = parseFloat(e.target.value).toFixed(1));
+        closeModalBtn.addEventListener('click', () => movieModal.classList.add('hidden'));
+        movieModal.addEventListener('click', (e) => { if(e.target === movieModal) movieModal.classList.add('hidden'); });
+
+        let genreMap = {};
+
+        async function initGenres() {
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}&language=en-US`);
+                const data = await res.json();
+                data.genres.forEach(g => {
+                    genreMap[g.id] = g.name;
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.innerText = g.name;
+                    filterGenre.appendChild(opt);
+                });
+            } catch (e) { console.error("Genre fetch failed", e); }
+        }
+        initGenres();
 
         function showError(msg) {
             errorMessage.innerText = msg;
@@ -263,71 +319,127 @@
         }
         updateCacheCount();
 
+        /**
+         * Task 2: Get recommendations based on user filters
+         * Task 4: Display 6 recommendations
+         */
         async function getRandomMovie() {
             setLoading(true);
+            const filters = {
+                genreId: filterGenre.value,
+                minRating: parseFloat(filterRating.value),
+                yearMin: filterYearMin.value ? `${filterYearMin.value}-01-01` : '',
+                yearMax: filterYearMax.value ? `${filterYearMax.value}-12-31` : ''
+            };
+
             try {
-                const randomPage = Math.floor(Math.random() * 500) + 1;
-                const listRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=en-US&sort_by=vote_count.desc&include_adult=false&page=${randomPage}`);
+                // Task 3: Impersonal recommendations
+                let discoverUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=en-US&include_adult=false`;
+                if (filters.genreId) discoverUrl += `&with_genres=${filters.genreId}`;
+                if (filters.minRating > 0) discoverUrl += `&vote_average.gte=${filters.minRating}`;
+                if (filters.yearMin) discoverUrl += `&primary_release_date.gte=${filters.yearMin}`;
+                if (filters.yearMax) discoverUrl += `&primary_release_date.lte=${filters.yearMax}`;
                 
+                // If no specific quality filters, use popularity (less opinionated discovery)
+                discoverUrl += (filters.minRating === 0) ? `&sort_by=popularity.desc` : `&sort_by=vote_average.desc`;
+
+                const randomPage = Math.floor(Math.random() * 20) + 1; 
+                discoverUrl += `&page=${randomPage}`;
+
+                const listRes = await fetch(discoverUrl);
                 if (!listRes.ok) throw new Error("TMDB API connection failed");
                 
                 const listData = await listRes.json();
                 if (!listData.results || listData.results.length === 0) {
-                    showError("No movies found in this range. Try again!");
-                    setLoading(false);
-                    return;
+                    throw new Error("No movies found for these criteria.");
                 }
-                
-                const randomIndex = Math.floor(Math.random() * listData.results.length);
-                const movieBrief = listData.results[randomIndex];
-                const movieId = movieBrief.id;
 
-                // Process entire list for background caching
+                // Pick 6 random movies from results
+                const shuffled = listData.results.sort(() => 0.5 - Math.random());
+                const selectedBriefs = shuffled.slice(0, 6);
+
+                // Task 3: Broad background caching
                 backgroundCacheProcess(listData.results);
 
-                // Main display logic
-                const docRef = doc(db, "movies", movieId.toString());
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    displayMovie(docSnap.data());
-                } else {
-                    const movieData = await fetchFullDetails(movieId);
-                    if (movieData) {
+                const moviePromises = selectedBriefs.map(async (brief) => {
+                    const docRef = doc(db, "movies", brief.id.toString());
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) return docSnap.data();
+                    
+                    const full = await fetchFullDetails(brief.id);
+                    if (full) {
                         try {
-                            // Attempt to cache but don't block the UI if it fails
-                            await setDoc(doc(db, "movies", movieId.toString()), movieData);
+                            await setDoc(doc(db, "movies", brief.id.toString()), full);
                             updateCacheCount();
-                        } catch (cacheError) {
-                            console.warn("Caching failed (check Firestore rules):", cacheError);
-                        }
-                        displayMovie(movieData);
-                    } else {
-                        throw new Error("Could not fetch details for this movie.");
+                        } catch(e) {}
+                        return full;
                     }
-                }
+                    return null;
+                });
+
+                const finalMovies = (await Promise.all(moviePromises)).filter(m => m !== null);
+                if (finalMovies.length === 0) throw new Error("Could not retrieve movie details.");
+                
+                displayRecommendationGrid(finalMovies);
+
             } catch (error) {
-                console.error(error);
-                showError(error.message || "An error occurred while fetching your recommendation.");
+                console.warn("TMDB error, falling back to cache:", error.message);
+                // Task 1: API Fallback to Local Cache
+                const cacheMovies = await fetchRandomMoviesFromCache(6, filters);
+                if (cacheMovies.length > 0) {
+                    displayRecommendationGrid(cacheMovies);
+                } else {
+                    showError(error.message || "An error occurred and no cached movies match filters.");
+                }
             }
             setLoading(false);
         }
 
         /**
-         * Background Caching Logic
-         * Iterates through all discovered movies and caches highly rated ones
+         * Task 1: Practical Firestore random fetch with in-memory filtering
+         */
+        async function fetchRandomMoviesFromCache(count, filters) {
+            try {
+                let q = collection(db, "movies");
+                // Fetch a practical batch and filter in-memory
+                const snap = await getDocs(query(q, limit(100)));
+                let pool = snap.docs.map(d => d.data());
+
+                if (filters.genreId) {
+                    const genreName = genreMap[filters.genreId];
+                    pool = pool.filter(m => m.genres.includes(genreName));
+                }
+                if (filters.minRating > 0) {
+                    pool = pool.filter(m => parseFloat(m.rating) >= filters.minRating);
+                }
+                if (filters.yearMin || filters.yearMax) {
+                    pool = pool.filter(m => {
+                        if (m.release_date === "Unknown") return false;
+                        const yr = parseInt(m.release_date.split('-')[0]);
+                        const min = filters.yearMin ? parseInt(filters.yearMin.split('-')[0]) : 0;
+                        const max = filters.yearMax ? parseInt(filters.yearMax.split('-')[0]) : 9999;
+                        return yr >= min && yr <= max;
+                    });
+                }
+
+                return pool.sort(() => 0.5 - Math.random()).slice(0, count);
+            } catch (e) {
+                console.error("Cache fallback error", e);
+                return [];
+            }
+        }
+
+        /**
+         * Task 3: Broader Caching Logic
          */
         async function backgroundCacheProcess(movies) {
-            console.log("Starting background cache check for", movies.length, "movies...");
-            
             const tasks = movies.map(async (m) => {
-                // Criteria: 7.0+ rating and has poster
-                if (m.vote_average >= 7.0 && m.poster_path) {
+                // Criteria: 6.0+ rating and 50+ votes
+                if (m.vote_average >= 6.0 && m.vote_count >= 50 && m.poster_path) {
                     try {
                         const id = m.id.toString();
                         const docRef = doc(db, "movies", id);
                         const snap = await getDoc(docRef);
-                        
                         if (!snap.exists()) {
                             const details = await fetchFullDetails(m.id);
                             if (details) {
@@ -335,19 +447,12 @@
                                 return true;
                             }
                         }
-                    } catch (e) {
-                        // Silently fail background tasks to avoid UI disruption
-                        return false;
-                    }
+                    } catch (e) { return false; }
                 }
                 return false;
             });
-
-            // Wait for all checks to initiate, then update count if any were added
             const results = await Promise.all(tasks);
-            if (results.some(r => r === true)) {
-                updateCacheCount();
-            }
+            if (results.some(r => r === true)) updateCacheCount();
         }
 
         async function fetchFullDetails(id) {
@@ -384,11 +489,41 @@
             }
         }
 
-        function displayMovie(data) {
+        /**
+         * Task 4: Display results in grid
+         */
+        function displayRecommendationGrid(moviesArray) {
             welcomeUi.classList.add('hidden');
             movieSkeleton.classList.add('hidden');
-            movieContainer.classList.remove('hidden');
-            movieContainer.classList.add('fade-in');
+            recommendationsGrid.classList.remove('hidden');
+            recommendationsGrid.innerHTML = '';
+            
+            moviesArray.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = "movie-card rounded-2xl overflow-hidden cursor-pointer group fade-in";
+                card.innerHTML = `
+                    <div class="relative aspect-[2/3] bg-slate-800">
+                        <img src="${movie.poster || ''}" alt="${movie.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-yellow-500 text-black px-2 py-0.5 rounded text-[10px] font-black shadow-lg">⭐ ${movie.rating}</span>
+                            <h3 class="text-white font-bold mt-1 line-clamp-1">${movie.title}</h3>
+                            <p class="text-slate-400 text-[10px] uppercase font-bold">${movie.genres.slice(0, 2).join(' • ')}</p>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => showSingleMovieDetailsModal(movie));
+                recommendationsGrid.appendChild(card);
+            });
+
+            window.scrollTo({ top: recommendationsGrid.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        /**
+         * Task 4: Adaptation of original display logic to a modal
+         */
+        function showSingleMovieDetailsModal(data) {
+            movieModal.classList.remove('hidden');
             
             const posterImg = document.getElementById('movie-poster');
             const placeholder = document.getElementById('poster-placeholder');
@@ -422,7 +557,7 @@
 
             const trailerBtn = document.getElementById('movie-trailer');
             const noTrailerMsg = document.getElementById('no-trailer-msg');
-            if (data.trailer_url === '#') {
+            if (data.trailer_url === '#' || !data.trailer_url) {
                 trailerBtn.classList.add('hidden');
                 noTrailerMsg.classList.remove('hidden');
             } else {
@@ -430,8 +565,6 @@
                 noTrailerMsg.classList.add('hidden');
                 trailerBtn.href = data.trailer_url;
             }
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function setLoading(isLoading) {
@@ -441,20 +574,20 @@
                 btnLoader.classList.add('block');
                 generateBtn.disabled = true;
                 
-                if (movieContainer.classList.contains('hidden')) {
+                if (recommendationsGrid.classList.contains('hidden')) {
                     welcomeUi.classList.add('hidden');
                     movieSkeleton.classList.remove('hidden');
                 } else {
-                    movieContainer.classList.add('opacity-50');
-                    movieContainer.style.pointerEvents = 'none';
+                    recommendationsGrid.classList.add('opacity-50');
+                    recommendationsGrid.style.pointerEvents = 'none';
                 }
             } else {
                 btnText.classList.remove('invisible');
                 btnLoader.classList.add('hidden');
                 generateBtn.disabled = false;
                 movieSkeleton.classList.add('hidden');
-                movieContainer.classList.remove('opacity-50');
-                movieContainer.style.pointerEvents = 'auto';
+                recommendationsGrid.classList.remove('opacity-50');
+                recommendationsGrid.style.pointerEvents = 'auto';
             }
         }
 
