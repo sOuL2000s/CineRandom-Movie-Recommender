@@ -7,32 +7,48 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
         
         :root {
             --primary: #3b82f6;
+            --primary-dark: #2563eb;
             --accent: #8b5cf6;
             --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
         }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { 
+            background: #334155; 
+            border-radius: 5px; 
+            border: 2px solid var(--bg);
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg);
-            color: #f8fafc;
+            color: #f1f5f9;
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
+        body.modal-open { overflow: hidden; }
+
         .movie-card {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .movie-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-color: var(--primary);
         }
 
         .skeleton {
@@ -46,41 +62,77 @@
             100% { background-position: -200% 0; }
         }
 
-        .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 0.8s linear infinite;
+        /* Creative Clapperboard Loader */
+        .loader-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .clapperboard {
+            width: 32px;
+            height: 28px;
+            background: #f1f5f9;
+            position: relative;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .clapperboard::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 10px;
+            background: repeating-linear-gradient(45deg, #000, #000 6px, #fff 6px, #fff 12px);
+            animation: clap 0.8s infinite ease-in-out;
+            transform-origin: bottom left;
+        }
+        @keyframes clap {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-25deg); }
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Task 3: Immersive Sidebar & Background */
+        #history-sidebar {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 150;
+        }
+        #history-sidebar.closed { transform: translateX(100%); }
+        
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
 
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .history-item:hover .remove-history { opacity: 1; }
+
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Modal Animation */
+        #movie-modal > div {
+            animation: modalIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
 
         .btn-hover-effect {
             position: relative;
             overflow: hidden;
+            z-index: 1;
         }
-        .btn-hover-effect::after {
+        .btn-hover-effect::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease-out, height 0.6s ease-out;
+            top: 0; left: 0; width: 0%; height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: width 0.3s ease;
+            z-index: -1;
         }
-        .btn-hover-effect:active::after {
-            width: 300px;
-            height: 300px;
-            opacity: 0;
-        }
+        .btn-hover-effect:hover::before { width: 100%; }
 
         .focus-ring:focus-visible {
             outline: 2px solid var(--primary);
@@ -88,13 +140,81 @@
         }
 
         #error-banner {
-            transform: translateY(-100%);
-            transition: transform 0.3s ease-out;
+            transform: translateY(-120%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(239, 68, 68, 0.95);
+            backdrop-filter: blur(8px);
         }
         #error-banner.show { transform: translateY(0); }
+
+        /* Themed Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            transition: transform 0.2s;
+        }
+        input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
+
+        /* Themed Select Wrapper */
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper::after {
+            content: '\f078';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+            font-size: 0.75rem;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4 md:p-8 pb-16">
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8 pb-16 overflow-x-hidden">
+    <!-- Task 3: Background Glow -->
+    <div class="bg-glow"></div>
+
+    <!-- Task 3: Recommendation History Sidebar -->
+    <div id="history-sidebar" class="fixed top-0 right-0 h-full w-80 bg-slate-900/95 backdrop-blur-xl border-l border-slate-700 shadow-2xl p-6 flex flex-col closed">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-history text-blue-400"></i> History
+            </h3>
+            <button id="close-history" class="text-slate-400 hover:text-white p-2">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="history-list" class="flex-1 overflow-y-auto space-y-4 pr-2">
+            <!-- History items inject here -->
+        </div>
+        <button id="clear-history" class="mt-6 text-xs text-slate-500 hover:text-red-400 transition-colors uppercase font-bold tracking-widest text-center w-full">
+            Clear History
+        </button>
+    </div>
+
+    <button id="toggle-history" class="fixed right-6 bottom-6 z-40 bg-slate-800 hover:bg-slate-700 w-14 h-14 rounded-full flex items-center justify-center border border-slate-700 shadow-xl transition-transform hover:scale-110 active:scale-95 group">
+        <i class="fas fa-bookmark text-blue-400 group-hover:text-blue-300"></i>
+        <span id="history-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+    </button>
 
     <!-- Error Banner -->
     <div id="error-banner" class="fixed top-0 left-0 right-0 bg-red-500 text-white p-4 text-center z-50 font-bold shadow-lg pointer-events-none">
@@ -130,9 +250,11 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Genre</label>
-                    <select id="filter-genre" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-slate-200">
-                        <option value="">All Genres</option>
-                    </select>
+                    <div class="select-wrapper">
+                        <select id="filter-genre" class="appearance-none w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all cursor-pointer">
+                            <option value="">All Genres</option>
+                        </select>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Min Rating: <span id="rating-display" class="text-blue-400">0.0</span></label>
@@ -141,11 +263,11 @@
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-2">From Year</label>
-                        <input type="number" id="filter-year-min" placeholder="1900" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-slate-200">
+                        <input type="number" id="filter-year-min" placeholder="1900" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all">
                     </div>
                     <div class="flex-1">
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-2">To Year</label>
-                        <input type="number" id="filter-year-max" placeholder="2024" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-slate-200">
+                        <input type="number" id="filter-year-max" placeholder="2024" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all">
                     </div>
                 </div>
             </div>
@@ -162,7 +284,16 @@
         </div>
 
         <!-- Movie Recommendations Grid (Task 4) -->
-        <div id="recommendations-grid" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+        <div id="recommendations-grid" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"></div>
+
+        <!-- No Results State -->
+        <div id="no-results" class="hidden text-center py-20 fade-in">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-slate-800 rounded-full mb-6 text-slate-600">
+                <i class="fas fa-search-minus text-4xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">No matches found</h3>
+            <p class="text-slate-400">Try adjusting your filters to find more gems.</p>
+        </div>
 
         <!-- Single Movie Detail Modal (Task 4) -->
         <div id="movie-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
@@ -217,11 +348,17 @@
 
         <!-- Action Button -->
         <div class="mt-4">
-            <button id="generate-btn" class="focus-ring group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-blue-600/20 btn-hover-effect">
+            <button id="generate-btn" class="focus-ring group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-blue-600/20 btn-hover-effect min-w-[240px] flex items-center justify-center">
                 <span id="btn-text" class="flex items-center gap-2">
                     <i class="fas fa-random"></i> Surprise Me!
                 </span>
-                <div id="btn-loader" class="hidden loader"></div>
+                <!-- Task 1: Creative Loader -->
+                <div id="btn-loader" class="hidden">
+                    <div class="loader-container">
+                        <div class="clapperboard"></div>
+                        <span class="text-sm uppercase tracking-tighter animate-pulse">Rolling...</span>
+                    </div>
+                </div>
             </button>
         </div>
 
@@ -267,6 +404,27 @@
         const cacheLoader = document.getElementById('cache-loader');
         const errorBanner = document.getElementById('error-banner');
         const errorMessage = document.getElementById('error-message');
+
+        // Task 3 UI Elements
+        const historySidebar = document.getElementById('history-sidebar');
+        const historyList = document.getElementById('history-list');
+        const toggleHistory = document.getElementById('toggle-history');
+        const closeHistory = document.getElementById('close-history');
+        const historyBadge = document.getElementById('history-badge');
+        const clearHistory = document.getElementById('clear-history');
+        const bgGlow = document.querySelector('.bg-glow');
+
+        // Task 3: Interactive Background
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            bgGlow.style.setProperty('--x', `${x}%`);
+            bgGlow.style.setProperty('--y', `${y}%`);
+        });
+
+        // Sidebar Toggles
+        toggleHistory.addEventListener('click', () => historySidebar.classList.remove('closed'));
+        closeHistory.addEventListener('click', () => historySidebar.classList.add('closed'));
         
         // Filter Elements (Task 2)
         const filterGenre = document.getElementById('filter-genre');
@@ -276,8 +434,19 @@
         const filterYearMax = document.getElementById('filter-year-max');
 
         filterRating.addEventListener('input', (e) => ratingDisplay.innerText = parseFloat(e.target.value).toFixed(1));
-        closeModalBtn.addEventListener('click', () => movieModal.classList.add('hidden'));
-        movieModal.addEventListener('click', (e) => { if(e.target === movieModal) movieModal.classList.add('hidden'); });
+        
+        const closeMovieModal = () => {
+            movieModal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        };
+
+        closeModalBtn.addEventListener('click', closeMovieModal);
+        movieModal.addEventListener('click', (e) => { if(e.target === movieModal) closeMovieModal(); });
+        
+        // Handle Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !movieModal.classList.contains('hidden')) closeMovieModal();
+        });
 
         let genreMap = {};
 
@@ -295,6 +464,72 @@
             } catch (e) { console.error("Genre fetch failed", e); }
         }
         initGenres();
+
+        // Task 2 & 3: Persistent Storage Logic
+        const STORAGE_KEY_LAST = 'cinerandom_last_recs';
+        const STORAGE_KEY_HISTORY = 'cinerandom_history_pool';
+
+        function saveToLastRecs(movies) {
+            localStorage.setItem(STORAGE_KEY_LAST, JSON.stringify(movies));
+        }
+
+        function addToHistory(movies) {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
+            const historyIds = new Set(history.map(m => m.id));
+            
+            movies.forEach(m => {
+                if (!historyIds.has(m.id)) {
+                    history.unshift(m);
+                }
+            });
+
+            const trimmedHistory = history.slice(0, 50); // Keep last 50
+            localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(trimmedHistory));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
+            historyBadge.innerText = history.length;
+            historyBadge.classList.toggle('hidden', history.length === 0);
+            
+            historyList.innerHTML = history.length ? '' : '<p class="text-slate-500 text-center py-10 italic">No history yet</p>';
+            
+            history.forEach((movie, index) => {
+                const div = document.createElement('div');
+                div.className = "history-item group flex gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 cursor-pointer transition-all";
+                div.innerHTML = `
+                    <img src="${movie.poster}" class="w-12 h-16 object-cover rounded-md shadow-lg">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-slate-100 truncate">${movie.title}</p>
+                        <p class="text-[10px] text-slate-400 uppercase font-black">⭐ ${movie.rating} • ${movie.release_date.split('-')[0]}</p>
+                    </div>
+                `;
+                div.addEventListener('click', () => showSingleMovieDetailsModal(movie));
+                historyList.appendChild(div);
+            });
+        }
+
+        clearHistory.addEventListener('click', () => {
+            if(confirm('Clear all recommendation history?')) {
+                localStorage.removeItem(STORAGE_KEY_HISTORY);
+                renderHistory();
+            }
+        });
+
+        // On Page Load: Check for last session
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem(STORAGE_KEY_LAST);
+            if (saved) {
+                try {
+                    const movies = JSON.parse(saved);
+                    if (Array.isArray(movies) && movies.length > 0) {
+                        displayRecommendationGrid(movies, true);
+                    }
+                } catch (e) { localStorage.removeItem(STORAGE_KEY_LAST); }
+            }
+            renderHistory();
+        });
 
         function showError(msg) {
             errorMessage.innerText = msg;
@@ -351,8 +586,11 @@
                 
                 const listData = await listRes.json();
                 if (!listData.results || listData.results.length === 0) {
+                    document.getElementById('no-results').classList.remove('hidden');
+                    recommendationsGrid.classList.add('hidden');
                     throw new Error("No movies found for these criteria.");
                 }
+                document.getElementById('no-results').classList.add('hidden');
 
                 // Pick 6 random movies from results
                 const shuffled = listData.results.sort(() => 0.5 - Math.random());
@@ -380,6 +618,8 @@
                 const finalMovies = (await Promise.all(moviePromises)).filter(m => m !== null);
                 if (finalMovies.length === 0) throw new Error("Could not retrieve movie details.");
                 
+                saveToLastRecs(finalMovies);
+                addToHistory(finalMovies);
                 displayRecommendationGrid(finalMovies);
 
             } catch (error) {
@@ -491,12 +731,30 @@
 
         /**
          * Task 4: Display results in grid
+         * Added 'isAutoLoad' flag for Task 2
          */
-        function displayRecommendationGrid(moviesArray) {
+        function displayRecommendationGrid(moviesArray, isAutoLoad = false) {
             welcomeUi.classList.add('hidden');
             movieSkeleton.classList.add('hidden');
             recommendationsGrid.classList.remove('hidden');
             recommendationsGrid.innerHTML = '';
+            
+            // Add session header if loading from local storage
+            if (isAutoLoad) {
+                const header = document.createElement('div');
+                header.className = "col-span-full mb-4 flex items-center justify-between bg-blue-900/20 border border-blue-500/30 p-3 rounded-xl";
+                header.innerHTML = `
+                    <span class="text-xs font-bold uppercase tracking-widest text-blue-300">
+                        <i class="fas fa-clock-rotate-left mr-2"></i> Restored your last session
+                    </span>
+                    <button id="clear-last" class="text-xs text-blue-300 hover:text-white underline">Start fresh</button>
+                `;
+                recommendationsGrid.appendChild(header);
+                header.querySelector('#clear-last').addEventListener('click', () => {
+                    localStorage.removeItem(STORAGE_KEY_LAST);
+                    location.reload();
+                });
+            }
             
             moviesArray.forEach(movie => {
                 const card = document.createElement('div');
@@ -524,6 +782,7 @@
          */
         function showSingleMovieDetailsModal(data) {
             movieModal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
             
             const posterImg = document.getElementById('movie-poster');
             const placeholder = document.getElementById('poster-placeholder');
@@ -569,10 +828,11 @@
 
         function setLoading(isLoading) {
             if (isLoading) {
-                btnText.classList.add('invisible');
+                btnText.classList.add('hidden');
                 btnLoader.classList.remove('hidden');
-                btnLoader.classList.add('block');
+                btnLoader.classList.add('flex');
                 generateBtn.disabled = true;
+                document.getElementById('no-results').classList.add('hidden');
                 
                 if (recommendationsGrid.classList.contains('hidden')) {
                     welcomeUi.classList.add('hidden');
@@ -582,7 +842,8 @@
                     recommendationsGrid.style.pointerEvents = 'none';
                 }
             } else {
-                btnText.classList.remove('invisible');
+                btnText.classList.remove('hidden');
+                btnText.classList.add('flex');
                 btnLoader.classList.add('hidden');
                 generateBtn.disabled = false;
                 movieSkeleton.classList.add('hidden');
