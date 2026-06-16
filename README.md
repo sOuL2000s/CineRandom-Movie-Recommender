@@ -2,6 +2,7 @@
 
 CineRandom is a simple web application that helps you discover highly-rated movies with a single click. It fetches movie data from The Movie Database (TMDB) API and caches it using Firebase Firestore to provide quick recommendations.
 
+Live Website : https://cinerandom-movie-recommender.netlify.app/
 ## Features
 
 *   **Random Movie Generation:** Get a new movie recommendation instantly.

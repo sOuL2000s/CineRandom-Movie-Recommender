@@ -294,9 +294,14 @@
                 } else {
                     const movieData = await fetchFullDetails(movieId);
                     if (movieData) {
-                        await setDoc(doc(db, "movies", movieId.toString()), movieData);
+                        try {
+                            // Attempt to cache but don't block the UI if it fails
+                            await setDoc(doc(db, "movies", movieId.toString()), movieData);
+                            updateCacheCount();
+                        } catch (cacheError) {
+                            console.warn("Caching failed (check Firestore rules):", cacheError);
+                        }
                         displayMovie(movieData);
-                        updateCacheCount();
                     } else {
                         throw new Error("Could not fetch details for this movie.");
                     }
