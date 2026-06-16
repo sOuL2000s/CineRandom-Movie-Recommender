@@ -1,0 +1,7 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+# You might need to specify a Node.js version if you have issues with npm install
+# [build.environment]
+#   NODE_VERSION = "18"

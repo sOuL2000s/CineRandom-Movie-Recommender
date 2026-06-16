@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineRandom | Discover Your Next Favorite Movie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #3b82f6;
+            --accent: #8b5cf6;
+            --bg: #0f172a;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .movie-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-hover-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-hover-effect::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease-out, height 0.6s ease-out;
+        }
+        .btn-hover-effect:active::after {
+            width: 300px;
+            height: 300px;
+            opacity: 0;
+        }
+
+        .focus-ring:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        #error-banner {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-out;
+        }
+        #error-banner.show { transform: translateY(0); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8 pb-16">
+
+    <!-- Error Banner -->
+    <div id="error-banner" class="fixed top-0 left-0 right-0 bg-red-500 text-white p-4 text-center z-50 font-bold shadow-lg pointer-events-none">
+        <i class="fas fa-exclamation-circle mr-2"></i> <span id="error-message"></span>
+    </div>
+
+    <!-- Header -->
+    <header class="w-full max-w-6xl flex flex-col sm:flex-row justify-between items-center mb-12 gap-4">
+        <h1 class="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">
+            CineRandom
+        </h1>
+        <div id="stats" class="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+            <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Local Cache</span>
+            <div id="cache-loader" class="loader w-4 h-4"></div>
+            <span id="cache-count" class="hidden text-blue-400 font-mono font-bold">0</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="w-full max-w-4xl flex flex-col items-center">
+        
+        <!-- Welcome Section -->
+        <div id="welcome-ui" class="text-center mb-12 max-w-2xl">
+            <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Don't know what to watch?</h2>
+            <p class="text-slate-400 text-lg md:text-xl">Discover highly-rated hidden gems. One click, endless possibilities.</p>
+        </div>
+
+        <!-- Movie Skeleton (Loading State) -->
+        <div id="movie-skeleton" class="hidden w-full movie-card rounded-2xl overflow-hidden mb-8">
+            <div class="flex flex-col md:flex-row">
+                <div class="w-full md:w-80 h-[450px] skeleton"></div>
+                <div class="p-6 md:p-8 flex-1 space-y-4">
+                    <div class="h-10 w-3/4 skeleton rounded"></div>
+                    <div class="h-6 w-1/4 skeleton rounded"></div>
+                    <div class="flex gap-2">
+                        <div class="h-6 w-16 skeleton rounded"></div>
+                        <div class="h-6 w-16 skeleton rounded"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="h-4 w-full skeleton rounded"></div>
+                        <div class="h-4 w-full skeleton rounded"></div>
+                        <div class="h-4 w-2/3 skeleton rounded"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 pt-4">
+                        <div class="h-12 skeleton rounded"></div>
+                        <div class="h-12 skeleton rounded"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movie Display -->
+        <div id="movie-container" class="hidden w-full movie-card rounded-2xl overflow-hidden shadow-2xl mb-8 relative">
+            <div class="flex flex-col md:flex-row">
+                <div class="w-full md:w-80 shrink-0 bg-slate-800 flex items-center justify-center min-h-[300px]">
+                    <img id="movie-poster" src="" alt="" class="w-full h-full object-cover opacity-0 transition-opacity duration-500">
+                    <div id="poster-placeholder" class="hidden absolute flex flex-col items-center text-slate-500">
+                        <i class="fas fa-film text-4xl mb-2"></i>
+                        <span class="text-xs">No Poster Available</span>
+                    </div>
+                </div>
+                <div class="p-6 md:p-10 flex-1">
+                    <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+                        <h2 id="movie-title" class="text-3xl md:text-4xl font-bold leading-tight"></h2>
+                        <span id="movie-rating" class="shrink-0 bg-yellow-500 text-black px-4 py-1.5 rounded-full font-black text-sm shadow-lg shadow-yellow-500/20"></span>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-6" id="movie-genres"></div>
+                    
+                    <p id="movie-overview" class="text-slate-300 text-lg leading-relaxed mb-8"></p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm mb-8 border-t border-slate-700/50 pt-6">
+                        <div>
+                            <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Release Date</p>
+                            <p id="movie-date" class="text-slate-200 text-base"></p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Runtime</p>
+                            <p id="movie-runtime" class="text-slate-200 text-base"></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <p class="text-slate-500 uppercase tracking-tighter font-bold mb-2">Top Cast</p>
+                        <p id="movie-cast" class="text-slate-200"></p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a id="movie-trailer" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-all px-8 py-4 rounded-xl font-bold text-white btn-hover-effect">
+                            <i class="fab fa-youtube text-xl"></i> Watch Trailer
+                        </a>
+                        <p id="no-trailer-msg" class="hidden text-slate-500 italic text-sm self-center">Trailer currently unavailable</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="mt-4">
+            <button id="generate-btn" class="focus-ring group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-blue-600/20 btn-hover-effect">
+                <span id="btn-text" class="flex items-center gap-2">
+                    <i class="fas fa-random"></i> Surprise Me!
+                </span>
+                <div id="btn-loader" class="hidden loader"></div>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Firebase & Logic -->
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+            authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+            projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+            storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+            appId: import.meta.env.VITE_FIREBASE_APP_ID,
+            measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+        };
+
+        const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+        // --- END CONFIGURATION ---
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // UI Elements
+        const generateBtn = document.getElementById('generate-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+        const movieContainer = document.getElementById('movie-container');
+        const movieSkeleton = document.getElementById('movie-skeleton');
+        const welcomeUi = document.getElementById('welcome-ui');
+        const cacheCountEl = document.getElementById('cache-count');
+        const cacheLoader = document.getElementById('cache-loader');
+        const errorBanner = document.getElementById('error-banner');
+        const errorMessage = document.getElementById('error-message');
+
+        function showError(msg) {
+            errorMessage.innerText = msg;
+            errorBanner.classList.add('show');
+            setTimeout(() => errorBanner.classList.remove('show'), 4000);
+        }
+
+        // Update Global Cache Stats
+        async function updateCacheCount() {
+            try {
+                cacheLoader.classList.remove('hidden');
+                cacheCountEl.classList.add('hidden');
+                const coll = collection(db, "movies");
+                const snapshot = await getCountFromServer(coll);
+                cacheCountEl.innerText = snapshot.data().count;
+                cacheCountEl.classList.remove('hidden');
+                cacheLoader.classList.add('hidden');
+            } catch (e) {
+                console.error("Cache count error", e);
+                cacheLoader.classList.add('hidden');
+            }
+        }
+        updateCacheCount();
+
+        async function getRandomMovie() {
+            setLoading(true);
+            try {
+                const randomPage = Math.floor(Math.random() * 500) + 1;
+                const listRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=en-US&sort_by=vote_count.desc&include_adult=false&page=${randomPage}`);
+                
+                if (!listRes.ok) throw new Error("TMDB API connection failed");
+                
+                const listData = await listRes.json();
+                if (!listData.results || listData.results.length === 0) {
+                    showError("No movies found in this range. Try again!");
+                    setLoading(false);
+                    return;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * listData.results.length);
+                const movieBrief = listData.results[randomIndex];
+                const movieId = movieBrief.id;
+
+                // Process entire list for background caching
+                backgroundCacheProcess(listData.results);
+
+                // Main display logic
+                const docRef = doc(db, "movies", movieId.toString());
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    displayMovie(docSnap.data());
+                } else {
+                    const movieData = await fetchFullDetails(movieId);
+                    if (movieData) {
+                        await setDoc(doc(db, "movies", movieId.toString()), movieData);
+                        displayMovie(movieData);
+                        updateCacheCount();
+                    } else {
+                        throw new Error("Could not fetch details for this movie.");
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+                showError(error.message || "An error occurred while fetching your recommendation.");
+            }
+            setLoading(false);
+        }
+
+        /**
+         * Background Caching Logic
+         * Iterates through all discovered movies and caches highly rated ones
+         */
+        async function backgroundCacheProcess(movies) {
+            console.log("Starting background cache check for", movies.length, "movies...");
+            
+            const tasks = movies.map(async (m) => {
+                // Criteria: 7.0+ rating and has poster
+                if (m.vote_average >= 7.0 && m.poster_path) {
+                    try {
+                        const id = m.id.toString();
+                        const docRef = doc(db, "movies", id);
+                        const snap = await getDoc(docRef);
+                        
+                        if (!snap.exists()) {
+                            const details = await fetchFullDetails(m.id);
+                            if (details) {
+                                await setDoc(doc(db, "movies", id), details);
+                                return true;
+                            }
+                        }
+                    } catch (e) {
+                        // Silently fail background tasks to avoid UI disruption
+                        return false;
+                    }
+                }
+                return false;
+            });
+
+            // Wait for all checks to initiate, then update count if any were added
+            const results = await Promise.all(tasks);
+            if (results.some(r => r === true)) {
+                updateCacheCount();
+            }
+        }
+
+        async function fetchFullDetails(id) {
+            try {
+                const [detailRes, creditRes, videoRes] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}`),
+                    fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${TMDB_API_KEY}`),
+                    fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${TMDB_API_KEY}`)
+                ]);
+
+                if (!detailRes.ok) return null;
+
+                const details = await detailRes.json();
+                const credits = await creditRes.json();
+                const videos = await videoRes.json();
+
+                const trailer = videos.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+
+                return {
+                    id: details.id,
+                    title: details.title || "Unknown Title",
+                    overview: details.overview || "No description available for this movie.",
+                    poster: details.poster_path ? `https://image.tmdb.org/t/p/w500${details.poster_path}` : null,
+                    rating: details.vote_average ? details.vote_average.toFixed(1) : "N/A",
+                    release_date: details.release_date || "Unknown",
+                    runtime: details.runtime ? `${details.runtime} mins` : "N/A",
+                    genres: details.genres ? details.genres.map(g => g.name) : [],
+                    cast: credits.cast ? credits.cast.slice(0, 5).map(c => c.name).join(', ') : "Not available",
+                    trailer_url: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : '#'
+                };
+            } catch (e) {
+                console.error("Fetch details error", e);
+                return null;
+            }
+        }
+
+        function displayMovie(data) {
+            welcomeUi.classList.add('hidden');
+            movieSkeleton.classList.add('hidden');
+            movieContainer.classList.remove('hidden');
+            movieContainer.classList.add('fade-in');
+            
+            const posterImg = document.getElementById('movie-poster');
+            const placeholder = document.getElementById('poster-placeholder');
+            
+            posterImg.style.opacity = '0';
+            if (data.poster) {
+                posterImg.src = data.poster;
+                posterImg.alt = `Poster for ${data.title}`;
+                posterImg.onload = () => { posterImg.style.opacity = '1'; placeholder.classList.add('hidden'); };
+                placeholder.classList.add('hidden');
+            } else {
+                posterImg.src = "";
+                placeholder.classList.remove('hidden');
+            }
+
+            document.getElementById('movie-title').innerText = data.title;
+            document.getElementById('movie-rating').innerText = `⭐ ${data.rating}`;
+            document.getElementById('movie-overview').innerText = data.overview;
+            document.getElementById('movie-date').innerText = data.release_date;
+            document.getElementById('movie-runtime').innerText = data.runtime;
+            document.getElementById('movie-cast').innerText = data.cast;
+            
+            const genreContainer = document.getElementById('movie-genres');
+            genreContainer.innerHTML = '';
+            data.genres.forEach(genre => {
+                const span = document.createElement('span');
+                span.className = "bg-blue-900/30 text-blue-300 text-xs px-3 py-1.5 rounded-lg border border-blue-700/50 hover:bg-blue-800/40 transition-colors cursor-default";
+                span.innerText = genre;
+                genreContainer.appendChild(span);
+            });
+
+            const trailerBtn = document.getElementById('movie-trailer');
+            const noTrailerMsg = document.getElementById('no-trailer-msg');
+            if (data.trailer_url === '#') {
+                trailerBtn.classList.add('hidden');
+                noTrailerMsg.classList.remove('hidden');
+            } else {
+                trailerBtn.classList.remove('hidden');
+                noTrailerMsg.classList.add('hidden');
+                trailerBtn.href = data.trailer_url;
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnText.classList.add('invisible');
+                btnLoader.classList.remove('hidden');
+                btnLoader.classList.add('block');
+                generateBtn.disabled = true;
+                
+                if (movieContainer.classList.contains('hidden')) {
+                    welcomeUi.classList.add('hidden');
+                    movieSkeleton.classList.remove('hidden');
+                } else {
+                    movieContainer.classList.add('opacity-50');
+                    movieContainer.style.pointerEvents = 'none';
+                }
+            } else {
+                btnText.classList.remove('invisible');
+                btnLoader.classList.add('hidden');
+                generateBtn.disabled = false;
+                movieSkeleton.classList.add('hidden');
+                movieContainer.classList.remove('opacity-50');
+                movieContainer.style.pointerEvents = 'auto';
+            }
+        }
+
+        generateBtn.addEventListener('click', getRandomMovie);
+    </script>
+</body>
+</html>
