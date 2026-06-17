@@ -147,29 +147,85 @@
         }
         #error-banner.show { transform: translateY(0); }
 
-        /* Themed Range Slider */
+        /* Task 2: Refined Range Sliders */
         input[type=range] {
             -webkit-appearance: none;
             background: transparent;
+            cursor: pointer;
         }
+        
+        /* Webkit (Chrome, Safari, Edge) Track */
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 6px;
+            height: 8px;
             background: #1e293b;
-            border-radius: 3px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        /* Firefox Track */
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        /* Webkit Thumb */
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: grab;
+            margin-top: -8px;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 4px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        input[type=range]:active::-webkit-slider-thumb { 
+            transform: scale(1.15); 
+            cursor: grabbing;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+        }
+
+        /* Firefox Thumb */
+        input[type=range]::-moz-range-thumb {
             height: 18px;
             width: 18px;
             border-radius: 50%;
-            background: var(--primary);
+            background: #fff;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
             cursor: pointer;
-            margin-top: -6px;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-            transition: transform 0.2s;
         }
-        input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
+
+        /* Task 1: Adaptive FAB Button */
+        #fab-generate {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.8);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.5);
+        }
+
+        #fab-generate.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .kbd-hint {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            margin-left: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
         /* Themed Select Wrapper */
         .select-wrapper {
@@ -211,10 +267,20 @@
         </button>
     </div>
 
-    <button id="toggle-history" class="fixed right-6 bottom-6 z-40 bg-slate-800 hover:bg-slate-700 w-14 h-14 rounded-full flex items-center justify-center border border-slate-700 shadow-xl transition-transform hover:scale-110 active:scale-95 group">
-        <i class="fas fa-bookmark text-blue-400 group-hover:text-blue-300"></i>
-        <span id="history-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-    </button>
+    <div class="fixed right-6 bottom-6 flex flex-col gap-4 z-40">
+        <!-- Task 1: Adaptive FAB -->
+        <button id="fab-generate" class="group relative bg-blue-600 hover:bg-blue-500 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all border border-blue-400/30">
+            <i class="fas fa-random text-white group-hover:rotate-45 transition-transform"></i>
+            <span class="absolute right-full mr-4 bg-slate-900 border border-slate-700 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase tracking-widest">
+                Surprise Me <span class="text-slate-500 ml-1">Space</span>
+            </span>
+        </button>
+
+        <button id="toggle-history" class="bg-slate-800 hover:bg-slate-700 w-14 h-14 rounded-full flex items-center justify-center border border-slate-700 shadow-xl transition-transform hover:scale-110 active:scale-95 group relative">
+            <i class="fas fa-bookmark text-blue-400 group-hover:text-blue-300"></i>
+            <span id="history-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+        </button>
+    </div>
 
     <!-- Error Banner -->
     <div id="error-banner" class="fixed top-0 left-0 right-0 bg-red-500 text-white p-4 text-center z-50 font-bold shadow-lg pointer-events-none">
@@ -239,17 +305,26 @@
         <!-- Welcome Section -->
         <div id="welcome-ui" class="text-center mb-12 max-w-2xl">
             <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Don't know what to watch?</h2>
-            <p class="text-slate-400 text-lg md:text-xl">Discover highly-rated hidden gems. One click, endless possibilities.</p>
+            <p class="text-slate-400 text-lg md:text-xl">Discover your next favorite movie or series. Personalized gems, just a click away.</p>
         </div>
 
-        <!-- Customization Filters (Task 2) -->
+        <!-- Customization Filters -->
         <div id="filters" class="w-full max-w-4xl bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50 mb-8 fade-in">
-            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                <i class="fas fa-sliders-h text-blue-400"></i> Customization Options
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fas fa-sliders-h text-blue-400"></i> Customization Options
+                </h3>
+                <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-700">
+                    <button id="toggle-movie" class="px-4 py-2 rounded-lg text-sm font-bold transition-all bg-blue-600 text-white" data-type="movie">Movies</button>
+                    <button id="toggle-tv" class="px-4 py-2 rounded-lg text-sm font-bold transition-all text-slate-400 hover:text-slate-200" data-type="tv">TV Series</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Genre</label>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        <i class="fas fa-film mr-1 opacity-60"></i> Genre
+                    </label>
                     <div class="select-wrapper">
                         <select id="filter-genre" class="appearance-none w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all cursor-pointer">
                             <option value="">All Genres</option>
@@ -257,34 +332,42 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Min Rating: <span id="rating-display" class="text-blue-400">0.0</span></label>
-                    <input type="range" id="filter-rating" min="0" max="10" step="0.5" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2 flex justify-between">
+                        <span><i class="fas fa-star mr-1 text-yellow-500/80"></i> Min Rating</span>
+                        <span id="rating-display" class="bg-blue-500/20 text-blue-400 px-2 rounded">0.0</span>
+                    </label>
+                    <input type="range" id="filter-rating" min="0" max="10" step="0.5" value="0" class="slider-styled w-full">
                 </div>
-                <div class="flex gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2 flex justify-between">
+                        <span><i class="fas fa-layer-group mr-1 text-purple-500/80"></i> Quantity</span>
+                        <span id="qty-display" class="bg-blue-500/20 text-blue-400 px-2 rounded">20</span>
+                    </label>
+                    <input type="range" id="filter-qty" min="1" max="100" step="1" value="20" class="slider-styled w-full">
+                </div>
+                <div class="flex gap-3">
                     <div class="flex-1">
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">From Year</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">From</label>
                         <input type="number" id="filter-year-min" placeholder="1900" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all">
                     </div>
                     <div class="flex-1">
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">To Year</label>
-                        <input type="number" id="filter-year-max" placeholder="2024" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">To</label>
+                        <input type="number" id="filter-year-max" placeholder="2025" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Movie Skeletons Grid (Task 4) -->
-        <div id="movie-skeleton" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
-            <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+        <!-- Movie Skeletons Grid -->
+        <div id="movie-skeleton" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
             <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
             <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
             <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
         </div>
 
-        <!-- Movie Recommendations Grid (Task 4) -->
-        <div id="recommendations-grid" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"></div>
+        <!-- Movie Recommendations Grid -->
+        <div id="recommendations-grid" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"></div>
 
         <!-- No Results State -->
         <div id="no-results" class="hidden text-center py-20 fade-in">
@@ -310,9 +393,22 @@
                         </div>
                     </div>
                     <div class="p-6 md:p-10 flex-1">
-                        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-                            <h2 id="movie-title" class="text-3xl md:text-4xl font-bold leading-tight"></h2>
-                            <span id="movie-rating" class="shrink-0 bg-yellow-500 text-black px-4 py-1.5 rounded-full font-black text-sm shadow-lg shadow-yellow-500/20"></span>
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h2 id="movie-title" class="text-3xl md:text-4xl font-bold leading-tight"></h2>
+                                    <button id="copy-title-btn" class="text-slate-500 hover:text-blue-400 transition-colors p-2" title="Copy Title">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <span id="copy-feedback" class="hidden text-[10px] text-blue-400 font-bold uppercase tracking-widest animate-pulse mb-2">Copied to clipboard!</span>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span id="movie-rating" class="shrink-0 bg-yellow-500 text-black px-4 py-1.5 rounded-full font-black text-sm shadow-lg shadow-yellow-500/20 whitespace-nowrap"></span>
+                                <button id="like-btn" class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-sm font-bold">
+                                    <i class="far fa-heart text-red-500"></i> Like
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="flex flex-wrap gap-2 mb-6" id="movie-genres"></div>
@@ -324,7 +420,7 @@
                                 <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Release Date</p>
                                 <p id="movie-date" class="text-slate-200 text-base"></p>
                             </div>
-                            <div>
+                            <div id="runtime-container">
                                 <p class="text-slate-500 uppercase tracking-tighter font-bold mb-1">Runtime</p>
                                 <p id="movie-runtime" class="text-slate-200 text-base"></p>
                             </div>
@@ -335,11 +431,17 @@
                             <p id="movie-cast" class="text-slate-200"></p>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <a id="movie-trailer" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-all px-8 py-4 rounded-xl font-bold text-white btn-hover-effect">
+                        <div class="flex flex-wrap gap-3">
+                            <a id="movie-trailer" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-all px-6 py-3 rounded-xl font-bold text-white btn-hover-effect text-sm min-w-[160px]">
                                 <i class="fab fa-youtube text-xl"></i> Watch Trailer
                             </a>
-                            <p id="no-trailer-msg" class="hidden text-slate-500 italic text-sm self-center">Trailer currently unavailable</p>
+                            <a id="tmdb-link" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 transition-all px-6 py-3 rounded-xl font-bold text-white border border-slate-700 text-sm min-w-[160px]">
+                                <i class="fas fa-external-link-alt"></i> TMDB
+                            </a>
+                            <a id="imdb-link" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-[#f5c518] hover:bg-[#e2b616] transition-all px-6 py-3 rounded-xl font-bold text-black text-sm min-w-[160px]">
+                                <i class="fab fa-imdb text-xl"></i> IMDb
+                            </a>
+                            <p id="no-trailer-msg" class="hidden text-slate-500 italic text-sm self-center">Trailer unavailable</p>
                         </div>
                     </div>
                 </div>
@@ -347,10 +449,11 @@
         </div>
 
         <!-- Action Button -->
-        <div class="mt-4">
+        <div class="mt-4" id="main-generate-container">
             <button id="generate-btn" class="focus-ring group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-blue-600/20 btn-hover-effect min-w-[240px] flex items-center justify-center">
                 <span id="btn-text" class="flex items-center gap-2">
                     <i class="fas fa-random"></i> Surprise Me!
+                    <span class="kbd-hint hidden md:inline-block">SPACE</span>
                 </span>
                 <!-- Task 1: Creative Loader -->
                 <div id="btn-loader" class="hidden">
@@ -393,6 +496,8 @@
 
         // UI Elements
         const generateBtn = document.getElementById('generate-btn');
+        const fabGenerate = document.getElementById('fab-generate');
+        const mainGenerateContainer = document.getElementById('main-generate-container');
         const btnText = document.getElementById('btn-text');
         const btnLoader = document.getElementById('btn-loader');
         const recommendationsGrid = document.getElementById('recommendations-grid');
@@ -404,6 +509,92 @@
         const cacheLoader = document.getElementById('cache-loader');
         const errorBanner = document.getElementById('error-banner');
         const errorMessage = document.getElementById('error-message');
+
+        // New Feature UI Elements
+        const toggleMovie = document.getElementById('toggle-movie');
+        const toggleTv = document.getElementById('toggle-tv');
+        const filterQty = document.getElementById('filter-qty');
+        const qtyDisplay = document.getElementById('qty-display');
+        
+        // Filter Elements (Task 2)
+        const genreSelect = document.getElementById('filter-genre');
+        const ratingRange = document.getElementById('filter-rating');
+        const ratingDisplay = document.getElementById('rating-display');
+        const yearMinInput = document.getElementById('filter-year-min');
+        const yearMaxInput = document.getElementById('filter-year-max');
+
+        const likeBtn = document.getElementById('like-btn');
+        const copyTitleBtn = document.getElementById('copy-title-btn');
+        const copyFeedback = document.getElementById('copy-feedback');
+        const tmdbLink = document.getElementById('tmdb-link');
+        const imdbLink = document.getElementById('imdb-link');
+        const runtimeContainer = document.getElementById('runtime-container');
+
+        let currentMediaType = 'movie'; // 'movie' or 'tv'
+        let currentModalData = null;
+
+        // Task 2: Slider visual track updates
+        function updateSliderTrack(el) {
+            const min = el.min || 0;
+            const max = el.max || 100;
+            const val = el.value;
+            const percentage = (val - min) / (max - min) * 100;
+            el.style.background = `linear-gradient(to right, #3b82f6 ${percentage}%, #1e293b ${percentage}%)`;
+        }
+
+        // UI Event Listeners
+        filterQty.addEventListener('input', (e) => {
+            qtyDisplay.innerText = e.target.value;
+            updateSliderTrack(e.target);
+        });
+        ratingRange.addEventListener('input', (e) => {
+            ratingDisplay.innerText = parseFloat(e.target.value).toFixed(1);
+            updateSliderTrack(e.target);
+        });
+
+        // Task 1: Adaptive FAB Logic
+        window.addEventListener('scroll', () => {
+            const rect = mainGenerateContainer.getBoundingClientRect();
+            // Show FAB if the main button is scrolled out of view or too far up
+            if (rect.top < 0) {
+                fabGenerate.classList.add('visible');
+            } else {
+                fabGenerate.classList.remove('visible');
+            }
+        });
+
+        // Task 1: Keyboard Shortcut (Spacebar)
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if user is typing in input or modal is open
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+            if (!movieModal.classList.contains('hidden')) return;
+            
+            if (e.code === 'Space') {
+                e.preventDefault();
+                getRandomMovie();
+            }
+        });
+
+        fabGenerate.addEventListener('click', getRandomMovie);
+        [toggleMovie, toggleTv].forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.type;
+                if (type === currentMediaType) return;
+                
+                currentMediaType = type;
+                
+                // Update UI state
+                [toggleMovie, toggleTv].forEach(b => {
+                    b.classList.remove('bg-blue-600', 'text-white');
+                    b.classList.add('text-slate-400', 'hover:text-slate-200');
+                });
+                btn.classList.add('bg-blue-600', 'text-white');
+                btn.classList.remove('text-slate-400', 'hover:text-slate-200');
+
+                // Reload Genres
+                initGenres();
+            });
+        });
 
         // Task 3 UI Elements
         const historySidebar = document.getElementById('history-sidebar');
@@ -426,14 +617,7 @@
         toggleHistory.addEventListener('click', () => historySidebar.classList.remove('closed'));
         closeHistory.addEventListener('click', () => historySidebar.classList.add('closed'));
         
-        // Filter Elements (Task 2)
-        const filterGenre = document.getElementById('filter-genre');
-        const filterRating = document.getElementById('filter-rating');
-        const ratingDisplay = document.getElementById('rating-display');
-        const filterYearMin = document.getElementById('filter-year-min');
-        const filterYearMax = document.getElementById('filter-year-max');
-
-        filterRating.addEventListener('input', (e) => ratingDisplay.innerText = parseFloat(e.target.value).toFixed(1));
+        // Handled in updateSliderTrack listeners above
         
         const closeMovieModal = () => {
             movieModal.classList.add('hidden');
@@ -452,22 +636,28 @@
 
         async function initGenres() {
             try {
-                const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}&language=en-US`);
+                genreSelect.innerHTML = '<option value="">All Genres</option>';
+                const res = await fetch(`https://api.themoviedb.org/3/genre/${currentMediaType}/list?api_key=${TMDB_API_KEY}&language=en-US`);
                 const data = await res.json();
+                genreMap = {};
                 data.genres.forEach(g => {
                     genreMap[g.id] = g.name;
                     const opt = document.createElement('option');
                     opt.value = g.id;
                     opt.innerText = g.name;
-                    filterGenre.appendChild(opt);
+                    genreSelect.appendChild(opt);
                 });
             } catch (e) { console.error("Genre fetch failed", e); }
         }
         initGenres();
+        // Initial Slider state
+        updateSliderTrack(ratingRange);
+        updateSliderTrack(filterQty);
 
         // Task 2 & 3: Persistent Storage Logic
         const STORAGE_KEY_LAST = 'cinerandom_last_recs';
         const STORAGE_KEY_HISTORY = 'cinerandom_history_pool';
+        const STORAGE_KEY_LIKED = 'cinerandom_liked_items';
 
         function saveToLastRecs(movies) {
             localStorage.setItem(STORAGE_KEY_LAST, JSON.stringify(movies));
@@ -517,6 +707,47 @@
             }
         });
 
+        // Like/Unlike logic
+        function toggleLike(item) {
+            let liked = JSON.parse(localStorage.getItem(STORAGE_KEY_LIKED) || '[]');
+            const index = liked.findIndex(l => l.id === item.id && l.media_type === item.media_type);
+            
+            if (index > -1) {
+                liked.splice(index, 1);
+            } else {
+                liked.push({ id: item.id, media_type: item.media_type });
+            }
+            localStorage.setItem(STORAGE_KEY_LIKED, JSON.stringify(liked));
+            updateLikeUI(item);
+        }
+
+        function updateLikeUI(item) {
+            const liked = JSON.parse(localStorage.getItem(STORAGE_KEY_LIKED) || '[]');
+            const isLiked = liked.some(l => l.id === item.id && l.media_type === item.media_type);
+            const icon = likeBtn.querySelector('i');
+            if (isLiked) {
+                icon.classList.replace('far', 'fas');
+                likeBtn.classList.add('bg-red-500/10', 'border-red-500/50');
+            } else {
+                icon.classList.replace('fas', 'far');
+                likeBtn.classList.remove('bg-red-500/10', 'border-red-500/50');
+            }
+        }
+
+        likeBtn.addEventListener('click', () => {
+            if (currentModalData) toggleLike(currentModalData);
+        });
+
+        // Copy Title Logic
+        copyTitleBtn.addEventListener('click', () => {
+            if (currentModalData) {
+                navigator.clipboard.writeText(currentModalData.title).then(() => {
+                    copyFeedback.classList.remove('hidden');
+                    setTimeout(() => copyFeedback.classList.add('hidden'), 2000);
+                });
+            }
+        });
+
         // On Page Load: Check for last session
         window.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem(STORAGE_KEY_LAST);
@@ -555,59 +786,85 @@
         updateCacheCount();
 
         /**
-         * Task 2: Get recommendations based on user filters
-         * Task 4: Display 6 recommendations
+         * Enhanced Recommendation Logic
+         * personalization, media types, and user-defined quantity.
          */
         async function getRandomMovie() {
             setLoading(true);
+            const targetQty = parseInt(filterQty.value) || 20;
             const filters = {
-                genreId: filterGenre.value,
-                minRating: parseFloat(filterRating.value),
-                yearMin: filterYearMin.value ? `${filterYearMin.value}-01-01` : '',
-                yearMax: filterYearMax.value ? `${filterYearMax.value}-12-31` : ''
+                genreId: genreSelect.value,
+                minRating: parseFloat(ratingRange.value),
+                yearMin: yearMinInput.value ? `${yearMinInput.value}` : '',
+                yearMax: yearMaxInput.value ? `${yearMaxInput.value}` : '',
+                mediaType: currentMediaType
             };
 
             try {
-                // Task 3: Impersonal recommendations
-                let discoverUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=en-US&include_adult=false`;
-                if (filters.genreId) discoverUrl += `&with_genres=${filters.genreId}`;
-                if (filters.minRating > 0) discoverUrl += `&vote_average.gte=${filters.minRating}`;
-                if (filters.yearMin) discoverUrl += `&primary_release_date.gte=${filters.yearMin}`;
-                if (filters.yearMax) discoverUrl += `&primary_release_date.lte=${filters.yearMax}`;
-                
-                // If no specific quality filters, use popularity (less opinionated discovery)
-                discoverUrl += (filters.minRating === 0) ? `&sort_by=popularity.desc` : `&sort_by=vote_average.desc`;
+                let pool = [];
+                const liked = JSON.parse(localStorage.getItem(STORAGE_KEY_LIKED) || '[]');
+                const typedLiked = liked.filter(l => l.media_type === currentMediaType);
 
-                const randomPage = Math.floor(Math.random() * 20) + 1; 
-                discoverUrl += `&page=${randomPage}`;
+                // 1. Personalized Recommendations (if liked items exist)
+                if (typedLiked.length > 0) {
+                    const randomLiked = typedLiked[Math.floor(Math.random() * typedLiked.length)];
+                    const recRes = await fetch(`https://api.themoviedb.org/3/${currentMediaType}/${randomLiked.id}/recommendations?api_key=${TMDB_API_KEY}&language=en-US&page=1`);
+                    if (recRes.ok) {
+                        const recData = await recRes.json();
+                        pool = recData.results || [];
+                    }
+                }
 
-                const listRes = await fetch(discoverUrl);
-                if (!listRes.ok) throw new Error("TMDB API connection failed");
-                
-                const listData = await listRes.json();
-                if (!listData.results || listData.results.length === 0) {
+                // 2. Filtered Discovery Fallback (if pool is small)
+                if (pool.length < targetQty) {
+                    let discoverUrl = `https://api.themoviedb.org/3/discover/${currentMediaType}?api_key=${TMDB_API_KEY}&language=en-US&include_adult=false`;
+                    if (filters.genreId) discoverUrl += `&with_genres=${filters.genreId}`;
+                    if (filters.minRating > 0) discoverUrl += `&vote_average.gte=${filters.minRating}`;
+                    
+                    if (currentMediaType === 'movie') {
+                        if (filters.yearMin) discoverUrl += `&primary_release_date.gte=${filters.yearMin}-01-01`;
+                        if (filters.yearMax) discoverUrl += `&primary_release_date.lte=${filters.yearMax}-12-31`;
+                    } else {
+                        if (filters.yearMin) discoverUrl += `&first_air_date.gte=${filters.yearMin}-01-01`;
+                        if (filters.yearMax) discoverUrl += `&first_air_date.lte=${filters.yearMax}-12-31`;
+                    }
+                    
+                    discoverUrl += (filters.minRating === 0) ? `&sort_by=popularity.desc` : `&sort_by=vote_average.desc`;
+                    
+                    // Variety through random pages
+                    const page = Math.floor(Math.random() * 5) + 1;
+                    const discRes = await fetch(`${discoverUrl}&page=${page}`);
+                    if (discRes.ok) {
+                        const discData = await discRes.json();
+                        const newResults = discData.results || [];
+                        const existingIds = new Set(pool.map(m => m.id));
+                        newResults.forEach(item => {
+                            if (!existingIds.has(item.id)) pool.push(item);
+                        });
+                    }
+                }
+
+                if (pool.length === 0) {
                     document.getElementById('no-results').classList.remove('hidden');
                     recommendationsGrid.classList.add('hidden');
-                    throw new Error("No movies found for these criteria.");
+                    throw new Error("No matches found for these criteria.");
                 }
                 document.getElementById('no-results').classList.add('hidden');
 
-                // Pick 6 random movies from results
-                const shuffled = listData.results.sort(() => 0.5 - Math.random());
-                const selectedBriefs = shuffled.slice(0, 6);
-
-                // Task 3: Broad background caching
-                backgroundCacheProcess(listData.results);
+                // Pick required quantity
+                const selectedBriefs = pool.sort(() => 0.5 - Math.random()).slice(0, targetQty);
+                backgroundCacheProcess(pool.slice(0, 50)); 
 
                 const moviePromises = selectedBriefs.map(async (brief) => {
-                    const docRef = doc(db, "movies", brief.id.toString());
+                    const docId = `${currentMediaType}_${brief.id}`;
+                    const docRef = doc(db, "movies", docId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) return docSnap.data();
                     
-                    const full = await fetchFullDetails(brief.id);
+                    const full = await fetchFullDetails(brief.id, currentMediaType);
                     if (full) {
                         try {
-                            await setDoc(doc(db, "movies", brief.id.toString()), full);
+                            await setDoc(doc(db, "movies", docId), full);
                             updateCacheCount();
                         } catch(e) {}
                         return full;
@@ -616,20 +873,19 @@
                 });
 
                 const finalMovies = (await Promise.all(moviePromises)).filter(m => m !== null);
-                if (finalMovies.length === 0) throw new Error("Could not retrieve movie details.");
+                if (finalMovies.length === 0) throw new Error("Could not retrieve details.");
                 
                 saveToLastRecs(finalMovies);
                 addToHistory(finalMovies);
                 displayRecommendationGrid(finalMovies);
 
             } catch (error) {
-                console.warn("TMDB error, falling back to cache:", error.message);
-                // Task 1: API Fallback to Local Cache
-                const cacheMovies = await fetchRandomMoviesFromCache(6, filters);
+                console.warn("API error, fallback to cache:", error.message);
+                const cacheMovies = await fetchRandomMoviesFromCache(targetQty, filters);
                 if (cacheMovies.length > 0) {
                     displayRecommendationGrid(cacheMovies);
                 } else {
-                    showError(error.message || "An error occurred and no cached movies match filters.");
+                    showError(error.message);
                 }
             }
             setLoading(false);
@@ -642,15 +898,18 @@
             try {
                 let q = collection(db, "movies");
                 // Fetch a practical batch and filter in-memory
-                const snap = await getDocs(query(q, limit(100)));
+                const snap = await getDocs(query(q, limit(200)));
                 let pool = snap.docs.map(d => d.data());
+
+                // Filter by Media Type
+                pool = pool.filter(m => m.media_type === filters.mediaType);
 
                 if (filters.genreId) {
                     const genreName = genreMap[filters.genreId];
-                    pool = pool.filter(m => m.genres.includes(genreName));
+                    pool = pool.filter(m => m && m.genres && m.genres.includes(genreName));
                 }
                 if (filters.minRating > 0) {
-                    pool = pool.filter(m => parseFloat(m.rating) >= filters.minRating);
+                    pool = pool.filter(m => m && m.rating && parseFloat(m.rating) >= filters.minRating);
                 }
                 if (filters.yearMin || filters.yearMax) {
                     pool = pool.filter(m => {
@@ -677,11 +936,11 @@
                 // Criteria: 6.0+ rating and 50+ votes
                 if (m.vote_average >= 6.0 && m.vote_count >= 50 && m.poster_path) {
                     try {
-                        const id = m.id.toString();
+                        const id = `${currentMediaType}_${m.id}`;
                         const docRef = doc(db, "movies", id);
                         const snap = await getDoc(docRef);
                         if (!snap.exists()) {
-                            const details = await fetchFullDetails(m.id);
+                            const details = await fetchFullDetails(m.id, currentMediaType);
                             if (details) {
                                 await setDoc(doc(db, "movies", id), details);
                                 return true;
@@ -695,12 +954,13 @@
             if (results.some(r => r === true)) updateCacheCount();
         }
 
-        async function fetchFullDetails(id) {
+        async function fetchFullDetails(id, type = 'movie') {
             try {
+                const urlSuffix = type === 'movie' ? '' : '&append_to_response=external_ids';
                 const [detailRes, creditRes, videoRes] = await Promise.all([
-                    fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}`),
-                    fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${TMDB_API_KEY}`),
-                    fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${TMDB_API_KEY}`)
+                    fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${TMDB_API_KEY}${urlSuffix}`),
+                    fetch(`https://api.themoviedb.org/3/${type}/${id}/credits?api_key=${TMDB_API_KEY}`),
+                    fetch(`https://api.themoviedb.org/3/${type}/${id}/videos?api_key=${TMDB_API_KEY}`)
                 ]);
 
                 if (!detailRes.ok) return null;
@@ -710,18 +970,22 @@
                 const videos = await videoRes.json();
 
                 const trailer = videos.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                
+                const imdbId = type === 'movie' ? details.imdb_id : (details.external_ids ? details.external_ids.imdb_id : null);
 
                 return {
                     id: details.id,
-                    title: details.title || "Unknown Title",
-                    overview: details.overview || "No description available for this movie.",
+                    media_type: type,
+                    title: details.title || details.name || "Unknown Title",
+                    overview: details.overview || "No description available.",
                     poster: details.poster_path ? `https://image.tmdb.org/t/p/w500${details.poster_path}` : null,
                     rating: details.vote_average ? details.vote_average.toFixed(1) : "N/A",
-                    release_date: details.release_date || "Unknown",
-                    runtime: details.runtime ? `${details.runtime} mins` : "N/A",
+                    release_date: details.release_date || details.first_air_date || "Unknown",
+                    runtime: details.runtime ? `${details.runtime} mins` : (details.episode_run_time ? `${details.episode_run_time[0]} mins` : "N/A"),
                     genres: details.genres ? details.genres.map(g => g.name) : [],
                     cast: credits.cast ? credits.cast.slice(0, 5).map(c => c.name).join(', ') : "Not available",
-                    trailer_url: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : '#'
+                    trailer_url: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : '#',
+                    imdb_id: imdbId
                 };
             } catch (e) {
                 console.error("Fetch details error", e);
@@ -759,12 +1023,16 @@
             moviesArray.forEach(movie => {
                 const card = document.createElement('div');
                 card.className = "movie-card rounded-2xl overflow-hidden cursor-pointer group fade-in";
+                const badgeText = movie.media_type === 'tv' ? 'TV' : 'MOVIE';
                 card.innerHTML = `
                     <div class="relative aspect-[2/3] bg-slate-800">
-                        <img src="${movie.poster || ''}" alt="${movie.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="${movie.poster || ''}" alt="${movie.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                        <div class="absolute top-4 right-4 z-10">
+                            <span class="bg-blue-600 text-white px-2 py-0.5 rounded text-[8px] font-black shadow-lg uppercase tracking-widest">${badgeText}</span>
+                        </div>
                         <div class="absolute bottom-4 left-4 right-4">
-                            <span class="bg-yellow-500 text-black px-2 py-0.5 rounded text-[10px] font-black shadow-lg">⭐ ${movie.rating}</span>
+                            <span class="bg-yellow-500 text-black px-2 py-0.5 rounded text-[10px] font-black shadow-lg">⭐ ${movie.rating} (TMDB)</span>
                             <h3 class="text-white font-bold mt-1 line-clamp-1">${movie.title}</h3>
                             <p class="text-slate-400 text-[10px] uppercase font-bold">${movie.genres.slice(0, 2).join(' • ')}</p>
                         </div>
@@ -778,11 +1046,13 @@
         }
 
         /**
-         * Task 4: Adaptation of original display logic to a modal
+         * Enhanced Modal Display logic
          */
         function showSingleMovieDetailsModal(data) {
+            currentModalData = data;
             movieModal.classList.remove('hidden');
             document.body.classList.add('modal-open');
+            updateLikeUI(data);
             
             const posterImg = document.getElementById('movie-poster');
             const placeholder = document.getElementById('poster-placeholder');
@@ -799,11 +1069,18 @@
             }
 
             document.getElementById('movie-title').innerText = data.title;
-            document.getElementById('movie-rating').innerText = `⭐ ${data.rating}`;
+            document.getElementById('movie-rating').innerText = `⭐ ${data.rating} (TMDB)`;
             document.getElementById('movie-overview').innerText = data.overview;
             document.getElementById('movie-date').innerText = data.release_date;
-            document.getElementById('movie-runtime').innerText = data.runtime;
             document.getElementById('movie-cast').innerText = data.cast;
+            
+            // Runtime visibility
+            if (data.runtime && data.runtime !== "N/A") {
+                runtimeContainer.classList.remove('hidden');
+                document.getElementById('movie-runtime').innerText = data.runtime;
+            } else {
+                runtimeContainer.classList.add('hidden');
+            }
             
             const genreContainer = document.getElementById('movie-genres');
             genreContainer.innerHTML = '';
@@ -813,6 +1090,15 @@
                 span.innerText = genre;
                 genreContainer.appendChild(span);
             });
+
+            // External Links
+            tmdbLink.href = `https://www.themoviedb.org/${data.media_type}/${data.id}`;
+            if (data.imdb_id) {
+                imdbLink.href = `https://www.imdb.com/title/${data.imdb_id}/`;
+                imdbLink.classList.remove('hidden');
+            } else {
+                imdbLink.classList.add('hidden');
+            }
 
             const trailerBtn = document.getElementById('movie-trailer');
             const noTrailerMsg = document.getElementById('no-trailer-msg');
@@ -832,6 +1118,8 @@
                 btnLoader.classList.remove('hidden');
                 btnLoader.classList.add('flex');
                 generateBtn.disabled = true;
+                fabGenerate.disabled = true;
+                fabGenerate.querySelector('i').classList.add('fa-spin');
                 document.getElementById('no-results').classList.add('hidden');
                 
                 if (recommendationsGrid.classList.contains('hidden')) {
@@ -846,6 +1134,8 @@
                 btnText.classList.add('flex');
                 btnLoader.classList.add('hidden');
                 generateBtn.disabled = false;
+                fabGenerate.disabled = false;
+                fabGenerate.querySelector('i').classList.remove('fa-spin');
                 movieSkeleton.classList.add('hidden');
                 recommendationsGrid.classList.remove('opacity-50');
                 recommendationsGrid.style.pointerEvents = 'auto';
