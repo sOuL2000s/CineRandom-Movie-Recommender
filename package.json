@@ -4,7 +4,7 @@
   "description": "CineRandom is a simple web application that helps you discover highly-rated movies with a single click. It fetches movie data from The Movie Database (TMDB) API and caches it using Firebase Firestore to provide quick recommendations.",
   "main": "index.html",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --open",
     "build": "vite build",
     "preview": "vite preview"
   },

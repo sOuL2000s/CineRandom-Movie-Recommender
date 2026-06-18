@@ -817,7 +817,12 @@
                 }
 
                 // 2. Filtered Discovery Fallback (if pool is small)
-                if (pool.length < targetQty) {
+                // Fetch multiple pages to gather enough recommendations
+                let pagesFetched = 0;
+                const maxPagesToFetch = Math.ceil(targetQty / 20) + 1; // +1 to ensure enough variety
+                const maxTotalPages = 10; // Cap to avoid excessive API calls
+
+                while (pool.length < targetQty && pagesFetched < maxTotalPages) {
                     let discoverUrl = `https://api.themoviedb.org/3/discover/${currentMediaType}?api_key=${TMDB_API_KEY}&language=en-US&include_adult=false`;
                     if (filters.genreId) discoverUrl += `&with_genres=${filters.genreId}`;
                     if (filters.minRating > 0) discoverUrl += `&vote_average.gte=${filters.minRating}`;
@@ -832,17 +837,28 @@
                     
                     discoverUrl += (filters.minRating === 0) ? `&sort_by=popularity.desc` : `&sort_by=vote_average.desc`;
                     
-                    // Variety through random pages
-                    const page = Math.floor(Math.random() * 5) + 1;
-                    const discRes = await fetch(`${discoverUrl}&page=${page}`);
+                    // Fetch a random page for variety, ensuring we don't go past maximum allowed by TMDB
+                    // TMDB usually has a few thousand pages, but we only need a few for quantity.
+                    const randomPage = Math.floor(Math.random() * 200) + 1; // Fetch from up to page 200 for broader variety
+                    const discRes = await fetch(`${discoverUrl}&page=${randomPage}`);
+                    
                     if (discRes.ok) {
                         const discData = await discRes.json();
                         const newResults = discData.results || [];
                         const existingIds = new Set(pool.map(m => m.id));
                         newResults.forEach(item => {
-                            if (!existingIds.has(item.id)) pool.push(item);
+                            if (!existingIds.has(item.id)) {
+                                pool.push(item);
+                            }
                         });
+                        if (newResults.length === 0 && randomPage === 1) { // No results on first page, likely no data
+                            break; 
+                        }
+                    } else {
+                        console.warn(`Failed to fetch discover page ${randomPage}: ${discRes.statusText}`);
+                        break; // Stop fetching if an error occurs
                     }
+                    pagesFetched++;
                 }
 
                 if (pool.length === 0) {
