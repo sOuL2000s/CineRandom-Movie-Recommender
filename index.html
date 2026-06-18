@@ -4,254 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="ZuGgXVQRp0MSfMU9mK8YyP3kyYsIpjYveeC-TpVOvVI" />
+    <meta name="theme-color" content="#3b82f6"> <!-- PWA theme color -->
+    <link rel="manifest" href="/manifest.json"> <!-- PWA manifest -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg"> <!-- Favicon SVG -->
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png"> <!-- Apple Touch Icon for iOS -->
+    <!-- Open Graph / Social Media Preview -->
+    <meta property="og:title" content="CineRandom | Discover Your Next Favorite Movie">
+    <meta property="og:description" content="Effortlessly discover your next favorite movie or TV series. Personalized recommendations powered by TMDB and Firebase.">
+    <meta property="og:image" content="https://cinerandom-movie-recommender.netlify.app/icons/icon-512x512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:url" content="https://cinerandom-movie-recommender.netlify.app/">
+    <meta property="og:type" content="website">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CineRandom | Discover Your Next Favorite Movie">
+    <meta name="twitter:description" content="Effortlessly discover your next favorite movie or TV series. Personalized recommendations powered by TMDB and Firebase.">
+    <meta name="twitter:image" content="https://cinerandom-movie-recommender.netlify.app/icons/icon-512x512.png">
     <title>CineRandom | Discover Your Next Favorite Movie</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/index.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-        
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --accent: #8b5cf6;
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { 
-            background: #334155; 
-            border-radius: 5px; 
-            border: 2px solid var(--bg);
-        }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg);
-            color: #f1f5f9;
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        body.modal-open { overflow: hidden; }
-
-        .movie-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .movie-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border-color: var(--primary);
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite linear;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        /* Creative Clapperboard Loader */
-        .loader-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .clapperboard {
-            width: 32px;
-            height: 28px;
-            background: #f1f5f9;
-            position: relative;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .clapperboard::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 10px;
-            background: repeating-linear-gradient(45deg, #000, #000 6px, #fff 6px, #fff 12px);
-            animation: clap 0.8s infinite ease-in-out;
-            transform-origin: bottom left;
-        }
-        @keyframes clap {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(-25deg); }
-        }
-
-        /* Task 3: Immersive Sidebar & Background */
-        #history-sidebar {
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 150;
-        }
-        #history-sidebar.closed { transform: translateX(100%); }
-        
-        .bg-glow {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(59, 130, 246, 0.15) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .history-item:hover .remove-history { opacity: 1; }
-
-        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Modal Animation */
-        #movie-modal > div {
-            animation: modalIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(30px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .btn-hover-effect {
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-        .btn-hover-effect::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 0%; height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            transition: width 0.3s ease;
-            z-index: -1;
-        }
-        .btn-hover-effect:hover::before { width: 100%; }
-
-        .focus-ring:focus-visible {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        #error-banner {
-            transform: translateY(-120%);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: rgba(239, 68, 68, 0.95);
-            backdrop-filter: blur(8px);
-        }
-        #error-banner.show { transform: translateY(0); }
-
-        /* Task 2: Refined Range Sliders */
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-            cursor: pointer;
-        }
-        
-        /* Webkit (Chrome, Safari, Edge) Track */
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            background: #1e293b;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Firefox Track */
-        input[type=range]::-moz-range-track {
-            width: 100%;
-            height: 8px;
-            background: #1e293b;
-            border-radius: 10px;
-        }
-
-        /* Webkit Thumb */
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 22px;
-            width: 22px;
-            border-radius: 50%;
-            background: #fff;
-            cursor: grab;
-            margin-top: -8px;
-            border: 3px solid var(--primary);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 4px rgba(0,0,0,0.2);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        input[type=range]:active::-webkit-slider-thumb { 
-            transform: scale(1.15); 
-            cursor: grabbing;
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
-        }
-
-        /* Firefox Thumb */
-        input[type=range]::-moz-range-thumb {
-            height: 18px;
-            width: 18px;
-            border-radius: 50%;
-            background: #fff;
-            border: 3px solid var(--primary);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-            cursor: pointer;
-        }
-
-        /* Task 1: Adaptive FAB Button */
-        #fab-generate {
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(20px) scale(0.8);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.5);
-        }
-
-        #fab-generate.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-        }
-
-        .kbd-hint {
-            font-family: monospace;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.6rem;
-            margin-left: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        /* Themed Select Wrapper */
-        .select-wrapper {
-            position: relative;
-        }
-        .select-wrapper::after {
-            content: '\f078';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            pointer-events: none;
-            font-size: 0.75rem;
-        }
-    </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4 md:p-8 pb-16 overflow-x-hidden">
     <!-- Task 3: Background Glow -->
     <div class="bg-glow"></div>
 
     <!-- Task 3: Recommendation History Sidebar -->
-    <div id="history-sidebar" class="fixed top-0 right-0 h-full w-80 bg-slate-900/95 backdrop-blur-xl border-l border-slate-700 shadow-2xl p-6 flex flex-col closed">
+    <div id="history-sidebar" class="fixed top-0 right-0 h-full w-full md:w-80 bg-slate-900/95 backdrop-blur-xl border-l border-slate-700 shadow-2xl p-6 flex flex-col closed">
         <div class="flex justify-between items-center mb-8">
             <h3 class="text-xl font-bold flex items-center gap-2">
                 <i class="fas fa-history text-blue-400"></i> History
@@ -281,6 +60,15 @@
             <i class="fas fa-bookmark text-blue-400 group-hover:text-blue-300"></i>
             <span id="history-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
         </button>
+
+        <!-- New: Push Notification Toggle -->
+        <button id="toggle-notifications" class="bg-slate-800 hover:bg-slate-700 w-14 h-14 rounded-full flex items-center justify-center border border-slate-700 shadow-xl transition-transform hover:scale-110 active:scale-95 group relative" title="Toggle Notifications">
+            <i class="fas fa-bell text-yellow-400 group-hover:text-yellow-300"></i>
+            <span id="notification-status-badge" class="absolute -top-1 -right-1 bg-gray-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">Off</span>
+            <span class="absolute right-full mr-4 bg-slate-900 border border-slate-700 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase tracking-widest">
+                Notifications
+            </span>
+        </button>
     </div>
 
     <!-- Error Banner -->
@@ -293,10 +81,18 @@
         <h1 class="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">
             CineRandom
         </h1>
-        <div id="stats" class="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
-            <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Local Cache</span>
-            <div id="cache-loader" class="loader w-4 h-4"></div>
-            <span id="cache-count" class="hidden text-blue-400 font-mono font-bold">0</span>
+        <div class="flex items-center gap-4">
+            <div id="stats" class="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Local Cache</span>
+                <div id="cache-loader" class="loader w-4 h-4"></div>
+                <span id="cache-count" class="hidden text-blue-400 font-mono font-bold">0</span>
+            </div>
+            <!-- User Auth Section -->
+            <div id="header-auth-section" class="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                <span id="auth-status" class="text-xs text-slate-400">Guest</span>
+                <button id="login-btn" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1 rounded-full transition-colors hidden">Login</button>
+                <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded-full transition-colors hidden">Logout</button>
+            </div>
         </div>
     </header>
 
@@ -308,6 +104,46 @@
             <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Don't know what to watch?</h2>
             <p class="text-slate-400 text-lg md:text-xl">Discover your next favorite movie or series. Personalized gems, just a click away.</p>
         </div>
+
+        <!-- Currently Trending Section -->
+        <section id="trending-section" class="w-full max-w-4xl mb-12 fade-in">
+            <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-fire text-orange-400"></i> Currently Trending
+                <select id="trending-time-window" class="ml-auto bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all cursor-pointer select-wrapper">
+                    <option value="day">Today</option>
+                    <option value="week">This Week</option>
+                </select>
+            </h3>
+            <div id="trending-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Trending items will be injected here -->
+            </div>
+            <div id="trending-skeleton" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+            </div>
+        </section>
+
+        <!-- Most Popular Section -->
+        <section id="popular-section" class="w-full max-w-4xl mb-12 fade-in">
+            <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-chart-line text-green-400"></i> Most Popular
+                <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-700 ml-auto">
+                    <button id="popular-toggle-movie" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white" data-type="movie">Movies</button>
+                    <button id="popular-toggle-tv" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-slate-200" data-type="tv">TV Series</button>
+                </div>
+            </h3>
+            <div id="popular-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Popular items will be injected here -->
+            </div>
+            <div id="popular-skeleton" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+                <div class="movie-card rounded-2xl aspect-[2/3] skeleton"></div>
+            </div>
+        </section>
 
         <!-- Customization Filters -->
         <div id="filters" class="w-full max-w-4xl bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50 mb-8 fade-in">
@@ -357,6 +193,36 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Advanced Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 pt-6 border-t border-slate-700/50">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        <i class="fas fa-ban mr-1 opacity-60"></i> Exclude Genre
+                    </label>
+                    <div class="select-wrapper">
+                        <select id="filter-exclude-genre" class="appearance-none w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all cursor-pointer">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2 flex justify-between">
+                        <span><i class="fas fa-user-circle mr-1 opacity-60"></i> Cast/Crew</span>
+                        <span id="cast-feedback" class="text-[10px] text-blue-400 font-bold uppercase tracking-widest hidden">ID Found!</span>
+                    </label>
+                    <input type="text" id="filter-cast-name" placeholder="Actor or Director Name" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all">
+                    <input type="hidden" id="filter-cast-id" value="">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2 flex justify-between">
+                        <span><i class="fas fa-tag mr-1 opacity-60"></i> Keywords</span>
+                        <span id="keyword-feedback" class="text-[10px] text-blue-400 font-bold uppercase tracking-widest hidden">ID Found!</span>
+                    </label>
+                    <input type="text" id="filter-keyword-name" placeholder="Specific Keywords" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200 transition-all">
+                    <input type="hidden" id="filter-keyword-id" value="">
+                </div>
+            </div>
         </div>
 
         <!-- Movie Skeletons Grid -->
@@ -381,7 +247,7 @@
 
         <!-- Single Movie Detail Modal (Task 4) -->
         <div id="movie-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
-            <div class="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto movie-card rounded-2xl shadow-2xl">
+            <div class="relative w-full max-w-full sm:max-w-lg md:max-w-4xl max-h-[90vh] overflow-y-auto movie-card rounded-2xl shadow-2xl">
                 <button id="close-modal" class="fixed md:absolute top-4 right-4 z-[110] bg-slate-900/80 hover:bg-slate-700 p-3 rounded-full transition-colors border border-slate-700">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -406,9 +272,17 @@
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span id="movie-rating" class="shrink-0 bg-yellow-500 text-black px-4 py-1.5 rounded-full font-black text-sm shadow-lg shadow-yellow-500/20 whitespace-nowrap"></span>
-                                <button id="like-btn" class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-sm font-bold">
-                                    <i class="far fa-heart text-red-500"></i> Like
-                                </button>
+                                <div class="flex flex-col gap-2">
+                                    <button id="like-btn" class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-sm font-bold">
+                                        <i class="far fa-heart text-red-500"></i> Like
+                                    </button>
+                                    <button id="dislike-btn" class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-sm font-bold">
+                                        <i class="far fa-thumbs-down text-slate-500"></i> Dislike
+                                    </button>
+                                    <button id="watched-btn" class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-sm font-bold">
+                                        <i class="far fa-eye text-blue-400"></i> Watched
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -433,6 +307,9 @@
                         </div>
 
                         <div class="flex flex-wrap gap-3">
+                            <button id="more-like-this-btn" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 transition-all px-6 py-3 rounded-xl font-bold text-white btn-hover-effect text-sm min-w-[160px]">
+                                <i class="fas fa-magic"></i> More Like This
+                            </button>
                             <a id="movie-trailer" target="_blank" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-all px-6 py-3 rounded-xl font-bold text-white btn-hover-effect text-sm min-w-[160px]">
                                 <i class="fab fa-youtube text-xl"></i> Watch Trailer
                             </a>
@@ -444,29 +321,78 @@
                             </a>
                             <p id="no-trailer-msg" class="hidden text-slate-500 italic text-sm self-center">Trailer unavailable</p>
                         </div>
+                        
+                        <!-- Shareability & Community Section -->
+                        <div class="flex flex-wrap gap-3 mt-6 border-t border-slate-700/50 pt-6">
+                            <button id="copy-permalink-btn" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 transition-all px-6 py-3 rounded-xl font-bold text-white btn-hover-effect text-sm min-w-[160px]">
+                                <i class="fas fa-link"></i> Copy Link
+                            </button>
+                            <a id="share-twitter-btn" target="_blank" rel="noopener noreferrer" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-[#1DA1F2] hover:bg-[#1A91DA] transition-all px-6 py-3 rounded-xl font-bold text-white btn-hover-effect text-sm min-w-[160px]">
+                                <i class="fab fa-twitter"></i> Share
+                            </a>
+                            <a id="share-facebook-btn" target="_blank" rel="noopener noreferrer" class="focus-ring flex-1 inline-flex items-center justify-center gap-2 bg-[#1877F2] hover:bg-[#156DCF] transition-all px-6 py-3 rounded-xl font-bold text-white btn-hover-effect text-sm min-w-[160px]">
+                                <i class="fab fa-facebook-f"></i> Share
+                            </a>
+                        </div>
+                        <span id="copy-permalink-feedback" class="hidden text-[10px] text-blue-400 font-bold uppercase tracking-widest animate-pulse mt-2 ml-1">Permalink copied!</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Action Button -->
-        <div class="mt-4" id="main-generate-container">
-            <button id="generate-btn" class="focus-ring group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-blue-600/20 btn-hover-effect min-w-[240px] flex items-center justify-center">
-                <span id="btn-text" class="flex items-center gap-2">
-                    <i class="fas fa-random"></i> Surprise Me!
-                    <span class="kbd-hint hidden md:inline-block">SPACE</span>
-                </span>
-                <!-- Task 1: Creative Loader -->
-                <div id="btn-loader" class="hidden">
-                    <div class="loader-container">
-                        <div class="clapperboard"></div>
-                        <span class="text-sm uppercase tracking-tighter animate-pulse">Rolling...</span>
+        <div class="mt-4 flex flex-col items-center gap-4" id="main-action-area">
+            <div id="print-export-buttons" class="hidden flex flex-wrap justify-center gap-4 mb-4 fade-in">
+                <button id="print-list-btn" class="focus-ring inline-flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold text-sm text-white border border-slate-600 transition-all btn-hover-effect">
+                    <i class="fas fa-print"></i> Print List
+                </button>
+                <button id="export-list-json-btn" class="focus-ring inline-flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold text-sm text-white border border-slate-600 transition-all btn-hover-effect">
+                    <i class="fas fa-file-export"></i> Export JSON
+                </button>
+            </div>
+            <div id="main-generate-container">
+                <button id="generate-btn" class="focus-ring group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-blue-600/20 btn-hover-effect min-w-[240px] flex items-center justify-center">
+                    <span id="btn-text" class="flex items-center gap-2">
+                        <i class="fas fa-random"></i> Surprise Me!
+                        <span class="kbd-hint hidden md:inline-block">SPACE</span>
+                    </span>
+                    <!-- Task 1: Creative Loader -->
+                    <div id="btn-loader" class="hidden">
+                        <div class="loader-container">
+                            <div class="clapperboard"></div>
+                            <span class="text-sm uppercase tracking-tighter animate-pulse">Rolling...</span>
+                        </div>
                     </div>
-                </div>
-            </button>
+                </button>
+            </div>
         </div>
 
     </main>
+
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
+        <div class="relative w-full max-w-md bg-slate-900 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-slate-700">
+            <button id="close-auth-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="text-2xl font-bold mb-6 text-center text-white">Sign In to CineRandom</h3>
+            
+            <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all btn-hover-effect focus-ring">
+                <i class="fab fa-google text-xl"></i> Sign in with Google
+            </button>
+
+            <!-- Optional: Add Email/Password login later if needed -->
+            <!-- <div class="relative flex py-5 items-center">
+                <div class="flex-grow border-t border-slate-700"></div>
+                <span class="flex-shrink mx-4 text-slate-500">Or</span>
+                <div class="flex-grow border-t border-slate-700"></div>
+            </div>
+            <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 mb-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200">
+            <input type="password" id="login-password" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 mb-6 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none text-slate-200">
+            <button id="email-login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all btn-hover-effect focus-ring mb-2">Sign In</button>
+            <p class="text-center text-sm text-slate-400">Don't have an account? <a href="#" id="register-link" class="text-blue-400 hover:underline">Register here</a></p> -->
+        </div>
+    </div>
 
     <!-- Firebase & Logic -->
     <script type="module">
@@ -476,6 +402,9 @@
             getFirestore, doc, setDoc, getDoc, collection, getCountFromServer, 
             query, where, limit, getDocs, orderBy 
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { 
+            getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"; // Firebase Auth SDK
 
         // --- CONFIGURATION ---
         const firebaseConfig = {
@@ -494,6 +423,10 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app); // Initialize Firebase Auth
+
+        // Global User State
+        let currentUser = null; 
 
         // UI Elements
         const generateBtn = document.getElementById('generate-btn');
@@ -511,6 +444,18 @@
         const errorBanner = document.getElementById('error-banner');
         const errorMessage = document.getElementById('error-message');
 
+        // NEW: Trending & Popular Sections UI Elements
+        const trendingSection = document.getElementById('trending-section');
+        const trendingGrid = document.getElementById('trending-grid');
+        const trendingSkeleton = document.getElementById('trending-skeleton');
+        const trendingTimeWindow = document.getElementById('trending-time-window');
+
+        const popularSection = document.getElementById('popular-section');
+        const popularGrid = document.getElementById('popular-grid');
+        const popularSkeleton = document.getElementById('popular-skeleton');
+        const popularToggleMovie = document.getElementById('popular-toggle-movie');
+        const popularToggleTv = document.getElementById('popular-toggle-tv');
+
         // New Feature UI Elements
         const toggleMovie = document.getElementById('toggle-movie');
         const toggleTv = document.getElementById('toggle-tv');
@@ -524,6 +469,15 @@
         const yearMinInput = document.getElementById('filter-year-min');
         const yearMaxInput = document.getElementById('filter-year-max');
 
+        // New Advanced Filter Elements
+        const excludeGenreSelect = document.getElementById('filter-exclude-genre');
+        const filterCastNameInput = document.getElementById('filter-cast-name');
+        const filterCastIdInput = document.getElementById('filter-cast-id');
+        const castFeedback = document.getElementById('cast-feedback');
+        const filterKeywordNameInput = document.getElementById('filter-keyword-name');
+        const filterKeywordIdInput = document.getElementById('filter-keyword-id');
+        const keywordFeedback = document.getElementById('keyword-feedback');
+
         const likeBtn = document.getElementById('like-btn');
         const copyTitleBtn = document.getElementById('copy-title-btn');
         const copyFeedback = document.getElementById('copy-feedback');
@@ -531,8 +485,38 @@
         const imdbLink = document.getElementById('imdb-link');
         const runtimeContainer = document.getElementById('runtime-container');
 
+        // Shareability UI Elements
+        const copyPermalinkBtn = document.getElementById('copy-permalink-btn');
+        const copyPermalinkFeedback = document.getElementById('copy-permalink-feedback');
+        const shareTwitterBtn = document.getElementById('share-twitter-btn');
+        const shareFacebookBtn = document.getElementById('share-facebook-btn');
+
+        // Print/Export UI Elements
+        const printExportButtons = document.getElementById('print-export-buttons');
+        const printListBtn = document.getElementById('print-list-btn');
+        const exportListJsonBtn = document.getElementById('export-list-json-btn');
+
+        // New Auth UI Elements
+        const headerAuthSection = document.getElementById('header-auth-section');
+        const authStatus = document.getElementById('auth-status');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const authModal = document.getElementById('auth-modal');
+        const closeAuthModal = document.getElementById('close-auth-modal');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        
+        // New Modal Buttons
+        const watchedBtn = document.getElementById('watched-btn');
+        const dislikeBtn = document.getElementById('dislike-btn'); // New
+        const moreLikeThisBtn = document.getElementById('more-like-this-btn'); // New
+        // PWA Notification UI Elements
+        const toggleNotificationsBtn = document.getElementById('toggle-notifications');
+        const notificationStatusBadge = document.getElementById('notification-status-badge');
+
         let currentMediaType = 'movie'; // 'movie' or 'tv'
         let currentModalData = null;
+        let userWatchlistCache = {}; // Cache for current user's liked/watched items
+        let lastDisplayedMovies = []; // Stores the last set of movies displayed in the grid for print/export
 
         // Task 2: Slider visual track updates
         function updateSliderTrack(el) {
@@ -554,15 +538,28 @@
         });
 
         // Task 1: Adaptive FAB Logic
-        window.addEventListener('scroll', () => {
+        // The FAB (#fab-generate) becomes visible when:
+        // 1. The main generation button (#generate-btn) is scrolled out of view upwards.
+        // 2. Recommendations are currently displayed, providing quick access to generate more.
+        window.addEventListener('scroll', updateFabVisibility);
+
+        function updateFabVisibility() {
             const rect = mainGenerateContainer.getBoundingClientRect();
-            // Show FAB if the main button is scrolled out of view or too far up
-            if (rect.top < 0) {
+            const isMainButtonScrolledOutOfView = rect.top < 0;
+            const areRecommendationsDisplayed = !recommendationsGrid.classList.contains('hidden');
+            const hasNoResults = !document.getElementById('no-results').classList.contains('hidden');
+
+            // If the main button is scrolled out of view OR if results/no results are showing
+            // (meaning the user has already interacted and likely wants to re-generate)
+            if (isMainButtonScrolledOutOfView || areRecommendationsDisplayed || hasNoResults) {
                 fabGenerate.classList.add('visible');
             } else {
                 fabGenerate.classList.remove('visible');
             }
-        });
+        }
+
+        // Initial call to set FAB visibility on page load
+        // This will be called again in DOMContentLoaded for correct initial state.
 
         // Task 1: Keyboard Shortcut (Spacebar)
         document.addEventListener('keydown', (e) => {
@@ -575,6 +572,9 @@
                 getRandomMovie();
             }
         });
+
+        // PWA Notification Event Listener
+        toggleNotificationsBtn.addEventListener('click', togglePushNotifications);
 
         fabGenerate.addEventListener('click', getRandomMovie);
         [toggleMovie, toggleTv].forEach(btn => {
@@ -628,16 +628,60 @@
         closeModalBtn.addEventListener('click', closeMovieModal);
         movieModal.addEventListener('click', (e) => { if(e.target === movieModal) closeMovieModal(); });
         
-        // Handle Escape key
+        // Handle Escape key for movie modal and auth modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !movieModal.classList.contains('hidden')) closeMovieModal();
+            if (e.key === 'Escape' && !authModal.classList.contains('hidden')) closeAuthModalFunc();
         });
+
+        // NEW: Event Listeners for Trending & Popular sections
+        trendingTimeWindow.addEventListener('change', (e) => {
+            currentTrendingTime = e.target.value;
+            fetchAndDisplayTrending();
+        });
+
+        popularToggleMovie.addEventListener('click', () => {
+            if (currentPopularMediaType === 'movie') return;
+            currentPopularMediaType = 'movie';
+            popularToggleMovie.classList.add('bg-blue-600', 'text-white');
+            popularToggleMovie.classList.remove('text-slate-400', 'hover:text-slate-200');
+            popularToggleTv.classList.remove('bg-blue-600', 'text-white');
+            popularToggleTv.classList.add('text-slate-400', 'hover:text-slate-200');
+            fetchAndDisplayPopular();
+        });
+
+        popularToggleTv.addEventListener('click', () => {
+            if (currentPopularMediaType === 'tv') return;
+            currentPopularMediaType = 'tv';
+            popularToggleTv.classList.add('bg-blue-600', 'text-white');
+            popularToggleTv.classList.remove('text-slate-400', 'hover:text-slate-200');
+            popularToggleMovie.classList.remove('bg-blue-600', 'text-white');
+            popularToggleMovie.classList.add('text-slate-400', 'hover:text-slate-200');
+            fetchAndDisplayPopular();
+        });
+
+        // Shareability & Print/Export Event Listeners
+        copyPermalinkBtn.addEventListener('click', copyPermalink);
+        printListBtn.addEventListener('click', printList);
+        exportListJsonBtn.addEventListener('click', exportListAsJson);
+
+        // Auth Modal Event Listeners
+        loginBtn.addEventListener('click', () => authModal.classList.remove('hidden'));
+        closeAuthModal.addEventListener('click', () => authModal.classList.add('hidden'));
+        authModal.addEventListener('click', (e) => { if(e.target === authModal) authModal.classList.add('hidden'); });
+        googleLoginBtn.addEventListener('click', signInWithGoogle);
+        logoutBtn.addEventListener('click', signOutUser);
+
+        function closeAuthModalFunc() {
+            authModal.classList.add('hidden');
+        }
 
         let genreMap = {};
 
         async function initGenres() {
             try {
                 genreSelect.innerHTML = '<option value="">All Genres</option>';
+                excludeGenreSelect.innerHTML = '<option value="">None</option>';
                 const res = await fetch(`https://api.themoviedb.org/3/genre/${currentMediaType}/list?api_key=${TMDB_API_KEY}&language=en-US`);
                 const data = await res.json();
                 genreMap = {};
@@ -647,10 +691,73 @@
                     opt.value = g.id;
                     opt.innerText = g.name;
                     genreSelect.appendChild(opt);
+
+                    const optExclude = document.createElement('option');
+                    optExclude.value = g.id;
+                    optExclude.innerText = g.name;
+                    excludeGenreSelect.appendChild(optExclude);
                 });
             } catch (e) { console.error("Genre fetch failed", e); }
         }
         initGenres();
+
+        // --- Advanced Filtering Input Resolution ---
+        async function resolvePerson(name) {
+            castFeedback.classList.add('hidden');
+            filterCastIdInput.value = '';
+            if (!name) return;
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(name)}&language=en-US`);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    filterCastIdInput.value = data.results[0].id;
+                    castFeedback.innerText = `ID Found: ${data.results[0].name}`;
+                    castFeedback.classList.remove('hidden');
+                } else {
+                    castFeedback.innerText = 'No person found.';
+                    castFeedback.classList.remove('hidden');
+                    setTimeout(() => castFeedback.classList.add('hidden'), 2000);
+                }
+            } catch (e) {
+                console.error("Person search failed", e);
+                castFeedback.innerText = 'Search error.';
+                castFeedback.classList.remove('hidden');
+                setTimeout(() => castFeedback.classList.add('hidden'), 2000);
+            }
+        }
+
+        async function resolveKeyword(name) {
+            keywordFeedback.classList.add('hidden');
+            filterKeywordIdInput.value = '';
+            if (!name) return;
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/search/keyword?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(name)}`);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    filterKeywordIdInput.value = data.results[0].id;
+                    keywordFeedback.innerText = `ID Found: ${data.results[0].name}`;
+                    keywordFeedback.classList.remove('hidden');
+                } else {
+                    keywordFeedback.innerText = 'No keyword found.';
+                    keywordFeedback.classList.remove('hidden');
+                    setTimeout(() => keywordFeedback.classList.add('hidden'), 2000);
+                }
+            } catch (e) {
+                console.error("Keyword search failed", e);
+                keywordFeedback.innerText = 'Search error.';
+                keywordFeedback.classList.remove('hidden');
+                setTimeout(() => keywordFeedback.classList.add('hidden'), 2000);
+            }
+        }
+
+        filterCastNameInput.addEventListener('blur', (e) => resolvePerson(e.target.value));
+        filterKeywordNameInput.addEventListener('blur', (e) => resolveKeyword(e.target.value));
+        filterCastNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') resolvePerson(e.target.value); });
+        filterKeywordNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') resolveKeyword(e.target.value); });
+
+        // Clear resolved ID if text input changes
+        filterCastNameInput.addEventListener('input', () => { filterCastIdInput.value = ''; castFeedback.classList.add('hidden'); });
+        filterKeywordNameInput.addEventListener('input', () => { filterKeywordIdInput.value = ''; keywordFeedback.classList.add('hidden'); });
         // Initial Slider state
         updateSliderTrack(ratingRange);
         updateSliderTrack(filterQty);
@@ -708,24 +815,177 @@
             }
         });
 
-        // Like/Unlike logic
-        function toggleLike(item) {
-            let liked = JSON.parse(localStorage.getItem(STORAGE_KEY_LIKED) || '[]');
-            const index = liked.findIndex(l => l.id === item.id && l.media_type === item.media_type);
-            
-            if (index > -1) {
-                liked.splice(index, 1);
-            } else {
-                liked.push({ id: item.id, media_type: item.media_type });
+        // --- Firebase Auth & Watchlist Logic ---
+
+        // Sign in with Google
+        async function signInWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                closeAuthModalFunc();
+            } catch (error) {
+                console.error("Google sign-in error:", error);
+                showError("Failed to sign in with Google.");
             }
-            localStorage.setItem(STORAGE_KEY_LIKED, JSON.stringify(liked));
-            updateLikeUI(item);
         }
 
-        function updateLikeUI(item) {
-            const liked = JSON.parse(localStorage.getItem(STORAGE_KEY_LIKED) || '[]');
-            const isLiked = liked.some(l => l.id === item.id && l.media_type === item.media_type);
+        // Sign out
+        async function signOutUser() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Sign-out error:", error);
+                showError("Failed to sign out.");
+            }
+        }
+
+        // Fetch user's watchlist from Firestore
+        async function fetchUserWatchlist(uid) {
+            const watchlistRef = collection(db, `users/${uid}/watchlist`);
+            const snapshot = await getDocs(watchlistRef);
+            const watchlist = {};
+            snapshot.forEach(doc => {
+                const item = doc.data();
+                watchlist[`${item.media_type}_${item.id}`] = item;
+            });
+            userWatchlistCache = watchlist; // Update local cache
+            return watchlist;
+        }
+
+        // Get single item from user's watchlist
+        async function getWatchlistItem(uid, mediaType, itemId) {
+            const docId = `${mediaType}_${itemId}`;
+            if (userWatchlistCache[docId]) {
+                return userWatchlistCache[docId];
+            }
+            const docRef = doc(db, `users/${uid}/watchlist`, docId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                userWatchlistCache[docId] = docSnap.data();
+                return docSnap.data();
+            }
+            return null;
+        }
+
+        // Set/Update single item in user's watchlist
+        async function setWatchlistItem(uid, itemData, liked, watched, disliked) { // Added 'disliked'
+            const docId = `${itemData.media_type}_${itemData.id}`;
+            const docRef = doc(db, `users/${uid}/watchlist`, docId);
+            
+            const dataToSave = {
+                id: itemData.id,
+                media_type: itemData.media_type,
+                title: itemData.title,
+                poster: itemData.poster,
+                rating: itemData.rating,
+                release_date: itemData.release_date,
+                genres: itemData.genres,
+                liked: liked,
+                watched: watched,
+                disliked: disliked, // New: Add disliked state
+                timestamp: Date.now()
+            };
+            
+            try {
+                await setDoc(docRef, dataToSave);
+                userWatchlistCache[docId] = dataToSave; // Update local cache
+            } catch (e) {
+                console.error("Error setting watchlist item:", e);
+                showError("Failed to save to watchlist.");
+            }
+        }
+
+        // Firebase Auth State Observer
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            if (user) {
+                authStatus.innerText = user.displayName || user.email;
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                // Fetch user's watchlist on login
+                await fetchUserWatchlist(user.uid); 
+                if (currentModalData) { // If modal is open, update its state
+                    showSingleMovieDetailsModal(currentModalData);
+                    updateDislikeUI(currentModalData); // New: Update dislike state on auth change
+                }
+            } else {
+                authStatus.innerText = 'Guest';
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                userWatchlistCache = {}; // Clear watchlist cache on logout
+                if (currentModalData) { // If modal is open, update its state
+                    showSingleMovieDetailsModal(currentModalData);
+                    updateDislikeUI(currentModalData); // New: Update dislike state on auth change (will hide for guests)
+                }
+            }
+        });
+
+        // --- Like/Watched/Dislike Logic ---
+        async function toggleLike(item) {
+            if (currentUser) {
+                const currentItem = await getWatchlistItem(currentUser.uid, item.media_type, item.id);
+                const isLiked = currentItem ? currentItem.liked : false;
+                // When liking, ensure it's not disliked
+                await setWatchlistItem(currentUser.uid, item, !isLiked, currentItem ? currentItem.watched : false, false);
+                updateLikeUI(item, !isLiked);
+                updateDislikeUI(item, false); // If liked, it can't be disliked
+            } else {
+                // Local storage for guests
+                let liked = JSON.parse(localStorage.getItem(STORAGE_KEY_LIKED) || '[]');
+                const docId = `${item.media_type}_${item.id}`;
+                const index = liked.findIndex(l => `${l.media_type}_${l.id}` === docId);
+                
+                if (index > -1) {
+                    liked.splice(index, 1);
+                } else {
+                    liked.push({ id: item.id, media_type: item.media_type });
+                }
+                localStorage.setItem(STORAGE_KEY_LIKED, JSON.stringify(liked));
+                updateLikeUI(item, index === -1); // Pass true if added, false if removed
+            }
+        }
+
+        async function toggleDislike(item) { // New: Dislike Logic
+            if (currentUser) {
+                const currentItem = await getWatchlistItem(currentUser.uid, item.media_type, item.id);
+                const isDisliked = currentItem ? currentItem.disliked : false;
+                // When disliking, ensure it's not liked
+                await setWatchlistItem(currentUser.uid, item, false, currentItem ? currentItem.watched : false, !isDisliked);
+                updateDislikeUI(item, !isDisliked);
+                updateLikeUI(item, false); // If disliked, it can't be liked
+            } else {
+                showError("Login to track disliked movies!"); // New: Guest warning for dislike
+            }
+        }
+
+        async function toggleWatched(item) {
+            if (currentUser) {
+                const currentItem = await getWatchlistItem(currentUser.uid, item.media_type, item.id);
+                const isWatched = currentItem ? currentItem.watched : false;
+                await setWatchlistItem(currentUser.uid, item, currentItem ? currentItem.liked : false, !isWatched);
+                updateWatchedUI(item, !isWatched);
+            } else {
+                showError("Login to track watched movies!");
+            }
+        }
+
+        async function updateLikeUI(item, isLikedOverride = null) {
             const icon = likeBtn.querySelector('i');
+            let isLiked = false;
+
+            if (currentUser) {
+                const docId = `${item.media_type}_${item.id}`;
+                isLiked = userWatchlistCache[docId] ? userWatchlistCache[docId].liked : false;
+            } else {
+                const liked = JSON.parse(localStorage.getItem(STORAGE_KEY_LIKED) || '[]');
+                isLiked = liked.some(l => l.id === item.id && l.media_type === item.media_type);
+            }
+            
+            // Override if explicit state is passed (e.g., from toggleLike function itself)
+            if (isLikedOverride !== null) {
+                isLiked = isLikedOverride;
+            }
+
             if (isLiked) {
                 icon.classList.replace('far', 'fas');
                 likeBtn.classList.add('bg-red-500/10', 'border-red-500/50');
@@ -735,8 +995,69 @@
             }
         }
 
+        async function updateDislikeUI(item, isDislikedOverride = null) { // New: Dislike UI update
+            const icon = dislikeBtn.querySelector('i');
+            let isDisliked = false;
+
+            if (!currentUser) {
+                dislikeBtn.classList.add('hidden'); // Hide for guests
+                return;
+            } else {
+                dislikeBtn.classList.remove('hidden'); // Show for logged-in users
+            }
+
+            const docId = `${item.media_type}_${item.id}`;
+            isDisliked = userWatchlistCache[docId] ? userWatchlistCache[docId].disliked : false;
+            
+            // Override if explicit state is passed
+            if (isDislikedOverride !== null) {
+                isDisliked = isDislikedOverride;
+            }
+
+            if (isDisliked) {
+                icon.classList.replace('far', 'fas');
+                dislikeBtn.classList.add('bg-slate-700/10', 'border-slate-500/50');
+                dislikeBtn.classList.remove('hover:bg-slate-800'); // Prevent hover effect when active
+            } else {
+                icon.classList.replace('fas', 'far');
+                dislikeBtn.classList.remove('bg-slate-700/10', 'border-slate-500/50');
+                dislikeBtn.classList.add('hover:bg-slate-800');
+            }
+        }
+
+        async function updateWatchedUI(item, isWatchedOverride = null) {
+            const icon = watchedBtn.querySelector('i');
+            let isWatched = false;
+
+            if (currentUser) {
+                const docId = `${item.media_type}_${item.id}`;
+                isWatched = userWatchlistCache[docId] ? userWatchlistCache[docId].watched : false;
+            }
+            
+            // Override if explicit state is passed
+            if (isWatchedOverride !== null) {
+                isWatched = isWatchedOverride;
+            }
+
+            if (isWatched) {
+                icon.classList.replace('far', 'fas');
+                watchedBtn.classList.add('bg-blue-500/10', 'border-blue-500/50');
+            } else {
+                icon.classList.replace('fas', 'far');
+                watchedBtn.classList.remove('bg-blue-500/10', 'border-blue-500/50');
+            }
+        }
+
         likeBtn.addEventListener('click', () => {
             if (currentModalData) toggleLike(currentModalData);
+        });
+
+        watchedBtn.addEventListener('click', () => {
+            if (currentModalData) toggleWatched(currentModalData);
+        });
+
+        dislikeBtn.addEventListener('click', () => { // New: Dislike button listener
+            if (currentModalData) toggleDislike(currentModalData);
         });
 
         // Copy Title Logic
@@ -749,24 +1070,268 @@
             }
         });
 
-        // On Page Load: Check for last session
-        window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem(STORAGE_KEY_LAST);
-            if (saved) {
-                try {
-                    const movies = JSON.parse(saved);
-                    if (Array.isArray(movies) && movies.length > 0) {
-                        displayRecommendationGrid(movies, true);
+        // On Page Load: Check for last session and handle URL parameters
+        window.addEventListener('DOMContentLoaded', async () => {
+            // PWA Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                // Using 'ready' ensures that the SW is active before attempting to interact with it
+                navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+                    .then(registration => {
+                        console.log('Service Worker registered: ', registration);
+                        updateNotificationUI(); // Update UI after SW is registered
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed: ', error);
+                    });
+            }
+            
+            await initGenres(); // Ensure genres are loaded first for popular/trending sections
+
+            // Fetch initial trending and popular data
+            fetchAndDisplayTrending();
+            fetchAndDisplayPopular();
+
+            const params = new URLSearchParams(window.location.search);
+            const urlType = params.get('type');
+            const urlId = params.get('id');
+
+            if (urlType && urlId) {
+                // If URL params exist, prioritize opening the specific movie modal
+                await handleUrlParams(urlType, urlId);
+            } else {
+                // Otherwise, check for last session
+                const saved = localStorage.getItem(STORAGE_KEY_LAST);
+                if (saved) {
+                    try {
+                        const movies = JSON.parse(saved);
+                        if (Array.isArray(movies) && movies.length > 0) {
+                            displayRecommendationGrid(movies, true);
+                        } else {
+                            // If last session is empty or invalid, ensure welcome UI and new sections are visible
+                            welcomeUi.classList.remove('hidden');
+                            trendingSection.classList.remove('hidden');
+                            popularSection.classList.remove('hidden');
+                        }
+                    } catch (e) { 
+                        localStorage.removeItem(STORAGE_KEY_LAST); 
+                        welcomeUi.classList.remove('hidden');
+                        trendingSection.classList.remove('hidden');
+                        popularSection.classList.remove('hidden');
                     }
-                } catch (e) { localStorage.removeItem(STORAGE_KEY_LAST); }
+                } else {
+                    // No last session found at all, ensure welcome UI and new sections are visible
+                    welcomeUi.classList.remove('hidden');
+                    trendingSection.classList.remove('hidden');
+                    popularSection.classList.remove('hidden');
+                }
             }
             renderHistory();
+            updateFabVisibility(); // Initialize FAB visibility
         });
 
         function showError(msg) {
             errorMessage.innerText = msg;
             errorBanner.classList.add('show');
             setTimeout(() => errorBanner.classList.remove('show'), 4000);
+        }
+
+        /**
+         * New: Handle URL parameters to open a specific movie modal
+         */
+        async function handleUrlParams(type, id) {
+            setLoading(true);
+            try {
+                const movieDetails = await fetchFullDetails(id, type);
+                if (movieDetails) {
+                    showSingleMovieDetailsModal(movieDetails);
+                } else {
+                    showError(`Could not find ${type === 'movie' ? 'movie' : 'TV series'} with ID ${id}.`);
+                }
+            } catch (e) {
+                console.error("Error fetching movie from URL params:", e);
+                showError("Failed to load item from link.");
+            } finally {
+                setLoading(false);
+                // Clean up URL to avoid re-triggering on refresh
+                history.replaceState({}, document.title, window.location.pathname);
+            }
+
+        }
+
+        // VAPID public key for push notifications. Generate using web-push CLI: `web-push generate-vapid-keys`
+        // NOTE: In a real app, this should be fetched from your backend. For this exercise, it's hardcoded.
+        const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY; 
+        console.log("VAPID_PUBLIC_KEY loaded:", VAPID_PUBLIC_KEY); // Log the loaded key
+
+        // Helper function to convert VAPID key
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        /**
+         * Updates the UI badge for notification status.
+         */
+        async function updateNotificationUI() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                toggleNotificationsBtn.classList.add('hidden'); // Hide button if not supported
+                return;
+            }
+
+            // Ensure service worker is ready before checking subscription
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+            
+            if (subscription) {
+                notificationStatusBadge.innerText = 'On';
+                notificationStatusBadge.classList.remove('bg-gray-500');
+                notificationStatusBadge.classList.add('bg-green-500', 'visible');
+            } else {
+                notificationStatusBadge.innerText = 'Off';
+                notificationStatusBadge.classList.remove('bg-green-500');
+                notificationStatusBadge.classList.add('bg-gray-500', 'visible');
+            }
+            notificationStatusBadge.classList.remove('hidden'); // Ensure badge is visible
+        }
+
+        /**
+         * Push Notifications Logic
+         * Handles subscribing/unsubscribing to push notifications.
+         */
+        async function togglePushNotifications() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                showError("Push notifications are not supported by your browser.");
+                return;
+            }
+
+            // Ensure VAPID Public Key is available before proceeding
+            if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.length < 50) { // Add a length check for basic sanity
+                console.error("VAPID_PUBLIC_KEY is missing, empty, or appears invalid. Cannot subscribe to push notifications.");
+                showError("Cannot enable notifications: VAPID key missing or invalid.");
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+
+            if (subscription) {
+                // User is subscribed, unsubscribe
+                await subscription.unsubscribe();
+                // In a real app, you would also send this to your backend to remove the subscription
+                console.log('Push subscription unsubscribed.');
+                showError("Notifications disabled.");
+            } else {
+                // User is not subscribed, subscribe
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    try {
+                        const newSubscription = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                        });
+                        // In a real app, you would send newSubscription to your backend to save it
+                        console.log('Push subscription created:', newSubscription);
+                        showError("Notifications enabled!");
+                    } catch (e) {
+                        console.error('Failed to subscribe to push:', e);
+                        showError("Failed to enable notifications. " + (e.message || ""));
+                    }
+                } else {
+                    showError("Notification permission denied.");
+                }
+            }
+            updateNotificationUI();
+        }
+
+        // No longer needed as SW registration and initial UI update is handled in DOMContentLoaded
+
+        /**
+         * New: Copy Permalink functionality
+         */
+        async function copyPermalink() {
+            if (currentModalData) {
+                const permalink = `${window.location.origin}/?type=${currentModalData.media_type}&id=${currentModalData.id}`;
+                try {
+                    await navigator.clipboard.writeText(permalink);
+                    copyPermalinkFeedback.classList.remove('hidden');
+                    setTimeout(() => copyPermalinkFeedback.classList.add('hidden'), 2000);
+                } catch (err) {
+                    console.error('Failed to copy permalink: ', err);
+                    showError("Failed to copy link.");
+                }
+            }
+        }
+
+        /**
+         * New: Print List functionality
+         */
+        function printList() {
+            if (lastDisplayedMovies.length > 0) {
+                const printWindow = window.open('', '', 'height=600,width=800');
+                printWindow.document.write('<html><head><title>CineRandom List</title>');
+                printWindow.document.write('<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">');
+                printWindow.document.write('<style>');
+                printWindow.document.write('body { font-family: sans-serif; padding: 20px; color: #1f2937; }');
+                printWindow.document.write('h1 { font-size: 2em; margin-bottom: 20px; }');
+                printWindow.document.write('.movie-item { display: flex; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 15px; }');
+                printWindow.document.write('.movie-item:last-child { border-bottom: none; }');
+                printWindow.document.write('.movie-poster { width: 80px; height: 120px; object-fit: cover; margin-right: 15px; border-radius: 8px; }');
+                printWindow.document.write('.movie-details h2 { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }');
+                printWindow.document.write('.movie-details p { font-size: 0.9em; color: #4b5563; }');
+                printWindow.document.write('</style>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write('<h1 class="text-3xl font-bold mb-6">CineRandom List</h1>');
+                
+                lastDisplayedMovies.forEach(movie => {
+                    printWindow.document.write(`
+                        <div class="movie-item">
+                            <img src="${movie.poster || 'https://via.placeholder.com/80x120?text=No+Poster'}" class="movie-poster">
+                            <div class="movie-details">
+                                <h2>${movie.title} (${movie.release_date.split('-')[0]})</h2>
+                                <p>⭐ ${movie.rating} | ${movie.genres.join(', ')}</p>
+                                <p class="line-clamp-2">${movie.overview}</p>
+                            </div>
+                        </div>
+                    `);
+                });
+
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            } else {
+                showError("No list to print. Generate recommendations first!");
+            }
+        }
+
+        /**
+         * New: Export List as JSON functionality
+         */
+        function exportListAsJson() {
+            if (lastDisplayedMovies.length > 0) {
+                const filename = `CineRandom_List_${new Date().toISOString().slice(0,10)}.json`;
+                const jsonStr = JSON.stringify(lastDisplayedMovies, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                showError("No list to export. Generate recommendations first!");
+            }
         }
 
         // Update Global Cache Stats
@@ -795,11 +1360,27 @@
             const targetQty = parseInt(filterQty.value) || 20;
             const filters = {
                 genreId: genreSelect.value,
+                excludeGenreId: excludeGenreSelect.value, // New
                 minRating: parseFloat(ratingRange.value),
                 yearMin: yearMinInput.value ? `${yearMinInput.value}` : '',
                 yearMax: yearMaxInput.value ? `${yearMaxInput.value}` : '',
+                castId: filterCastIdInput.value, // New
+                keywordId: filterKeywordIdInput.value, // New
                 mediaType: currentMediaType
             };
+
+            let excludedIds = new Set();
+            if (currentUser) {
+                // Fetch current user's liked/watched/disliked items to exclude from new recommendations
+                await fetchUserWatchlist(currentUser.uid); // Ensure cache is fresh
+                for (const key in userWatchlistCache) {
+                    const item = userWatchlistCache[key];
+                    // Exclude items that are liked, watched, OR disliked
+                    if ((item.liked || item.watched || item.disliked) && item.media_type === currentMediaType) { // Modified condition
+                        excludedIds.add(item.id);
+                    }
+                }
+            }
 
             try {
                 let pool = [];
@@ -825,7 +1406,10 @@
                 while (pool.length < targetQty && pagesFetched < maxTotalPages) {
                     let discoverUrl = `https://api.themoviedb.org/3/discover/${currentMediaType}?api_key=${TMDB_API_KEY}&language=en-US&include_adult=false`;
                     if (filters.genreId) discoverUrl += `&with_genres=${filters.genreId}`;
+                    if (filters.excludeGenreId) discoverUrl += `&without_genres=${filters.excludeGenreId}`; // New: Exclude Genre
                     if (filters.minRating > 0) discoverUrl += `&vote_average.gte=${filters.minRating}`;
+                    if (filters.castId) discoverUrl += `&with_cast=${filters.castId}`; // New: Cast Filter
+                    if (filters.keywordId) discoverUrl += `&with_keywords=${filters.keywordId}`; // New: Keyword Filter
                     
                     if (currentMediaType === 'movie') {
                         if (filters.yearMin) discoverUrl += `&primary_release_date.gte=${filters.yearMin}-01-01`;
@@ -869,14 +1453,24 @@
                 document.getElementById('no-results').classList.add('hidden');
 
                 // Pick required quantity
-                const selectedBriefs = pool.sort(() => 0.5 - Math.random()).slice(0, targetQty);
-                backgroundCacheProcess(pool.slice(0, 50)); 
+                // Filter out already liked/watched items if user is authenticated
+                const filteredPool = pool.filter(item => !excludedIds.has(item.id));
+                
+                const selectedBriefs = filteredPool.sort(() => 0.5 - Math.random()).slice(0, targetQty);
+                backgroundCacheProcess(filteredPool.slice(0, 50)); 
 
                 const moviePromises = selectedBriefs.map(async (brief) => {
                     const docId = `${currentMediaType}_${brief.id}`;
                     const docRef = doc(db, "movies", docId);
                     const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) return docSnap.data();
+                    if (docSnap.exists()) {
+                        const cachedData = docSnap.data();
+                        // Add media_type to cached data if it's missing (for older cache entries)
+                        if (!cachedData.media_type) {
+                            cachedData.media_type = currentMediaType;
+                        }
+                        return cachedData;
+                    }
                     
                     const full = await fetchFullDetails(brief.id, currentMediaType);
                     if (full) {
@@ -925,6 +1519,10 @@
                     const genreName = genreMap[filters.genreId];
                     pool = pool.filter(m => m && m.genres && m.genres.includes(genreName));
                 }
+                if (filters.excludeGenreId) { // New: Exclude Genre from Cache Fallback
+                    const excludeGenreName = genreMap[filters.excludeGenreId];
+                    pool = pool.filter(m => m && m.genres && !m.genres.includes(excludeGenreName));
+                }
                 if (filters.minRating > 0) {
                     pool = pool.filter(m => m && m.rating && parseFloat(m.rating) >= filters.minRating);
                 }
@@ -937,6 +1535,10 @@
                         return yr >= min && yr <= max;
                     });
                 }
+                // Note: Filtering by CastId and KeywordId from cache is more complex
+                // as the cache only stores names, not IDs, and requires iterating through cast/keywords arrays.
+                // For simplicity, these filters are currently applied only to the TMDB API call.
+                // A more robust cache would store cast/keyword IDs explicitly.
 
                 return pool.sort(() => 0.5 - Math.random()).slice(0, count);
             } catch (e) {
@@ -1010,16 +1612,109 @@
             }
         }
 
+        // --- Helper to render movie cards into a grid ---
+        function renderMovieCards(gridElement, moviesArray, mediaType) {
+            gridElement.innerHTML = '';
+            moviesArray.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = "movie-card rounded-2xl overflow-hidden cursor-pointer group fade-in";
+                const badgeText = mediaType === 'tv' ? 'TV' : 'MOVIE'; // Use passed mediaType for badge
+                card.innerHTML = `
+                    <div class="relative aspect-[2/3] bg-slate-800">
+                        <img src="${movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : ''}" 
+                             alt="${movie.title || movie.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                        <div class="absolute top-4 right-4 z-10">
+                            <span class="bg-blue-600 text-white px-2 py-0.5 rounded text-[8px] font-black shadow-lg uppercase tracking-widest">${badgeText}</span>
+                        </div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-yellow-500 text-black px-2 py-0.5 rounded text-[10px] font-black shadow-lg">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'} (TMDB)</span>
+                            <h3 class="text-white font-bold mt-1 line-clamp-1">${movie.title || movie.name}</h3>
+                            <p class="text-slate-400 text-[10px] uppercase font-bold">${movie.genre_ids ? movie.genre_ids.map(id => genreMap[id]).filter(Boolean).slice(0, 2).join(' • ') : ''}</p>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    // Construct an object with essential details for the modal
+                    // The modal's showSingleMovieDetailsModal will then fetch full details.
+                    const fullDetails = {
+                        id: movie.id,
+                        media_type: movie.media_type || mediaType, // Use movie's type if available, otherwise fallback
+                        title: movie.title || movie.name,
+                        overview: movie.overview,
+                        poster: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
+                        rating: movie.vote_average ? movie.vote_average.toFixed(1) : "N/A",
+                        release_date: movie.release_date || movie.first_air_date || "Unknown",
+                        genres: movie.genre_ids ? movie.genre_ids.map(id => genreMap[id]).filter(Boolean) : [],
+                        // Other fields will be fetched by showSingleMovieDetailsModal
+                    };
+                    showSingleMovieDetailsModal(fullDetails);
+                });
+                gridElement.appendChild(card);
+            });
+        }
+
+        // --- Fetch and Display Trending ---
+        let currentTrendingTime = 'day'; // 'day' or 'week'
+        async function fetchAndDisplayTrending() {
+            trendingGrid.innerHTML = '';
+            trendingSkeleton.classList.remove('hidden');
+            try {
+                const url = `https://api.themoviedb.org/3/trending/all/${currentTrendingTime}?api_key=${TMDB_API_KEY}&language=en-US`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    const itemsToDisplay = data.results
+                        .filter(item => item.poster_path && (item.title || item.name))
+                        .slice(0, 8); // Display top 8 trending items
+                    renderMovieCards(trendingGrid, itemsToDisplay, 'movie'); // 'all' type means items can be movie/tv
+                }
+            } catch (error) {
+                console.error("Failed to fetch trending:", error);
+                showError("Could not load trending content.");
+            } finally {
+                trendingSkeleton.classList.add('hidden');
+            }
+        }
+
+        // --- Fetch and Display Popular ---
+        let currentPopularMediaType = 'movie'; // 'movie' or 'tv'
+        async function fetchAndDisplayPopular() {
+            popularGrid.innerHTML = '';
+            popularSkeleton.classList.remove('hidden');
+            try {
+                const url = `https://api.themoviedb.org/3/${currentPopularMediaType}/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    const itemsToDisplay = data.results
+                        .filter(item => item.poster_path && (item.title || item.name))
+                        .slice(0, 8); // Display top 8 popular items
+                    renderMovieCards(popularGrid, itemsToDisplay, currentPopularMediaType);
+                }
+            } catch (error) {
+                console.error("Failed to fetch popular:", error);
+                showError("Could not load popular content.");
+            } finally {
+                popularSkeleton.classList.add('hidden');
+            }
+        }
+
         /**
          * Task 4: Display results in grid
          * Added 'isAutoLoad' flag for Task 2
          */
         function displayRecommendationGrid(moviesArray, isAutoLoad = false) {
             welcomeUi.classList.add('hidden');
+            trendingSection.classList.add('hidden'); // Hide trending section
+            popularSection.classList.add('hidden');  // Hide popular section
             movieSkeleton.classList.add('hidden');
             recommendationsGrid.classList.remove('hidden');
             recommendationsGrid.innerHTML = '';
             
+            lastDisplayedMovies = moviesArray; // Store for print/export
+            printExportButtons.classList.remove('hidden');
+
             // Add session header if loading from local storage
             if (isAutoLoad) {
                 const header = document.createElement('div');
@@ -1069,7 +1764,10 @@
             currentModalData = data;
             movieModal.classList.remove('hidden');
             document.body.classList.add('modal-open');
-            updateLikeUI(data);
+            // Update UI for like, dislike, and watched buttons
+            updateLikeUI(data); 
+            updateDislikeUI(data); // New: Call updateDislikeUI
+            updateWatchedUI(data);
             
             const posterImg = document.getElementById('movie-poster');
             const placeholder = document.getElementById('poster-placeholder');
@@ -1127,6 +1825,14 @@
                 noTrailerMsg.classList.add('hidden');
                 trailerBtn.href = data.trailer_url;
             }
+
+            // Update Share Buttons
+            const permalink = `${window.location.origin}/?type=${data.media_type}&id=${data.id}`;
+            const encodedTitle = encodeURIComponent(data.title);
+            const encodedPermalink = encodeURIComponent(permalink);
+
+            shareTwitterBtn.href = `https://twitter.com/intent/tweet?text=${encodedTitle}%20%7C%20Check%20out%20this%20${data.media_type === 'movie' ? 'movie' : 'TV series'}!%20%23CineRandom%20${encodedPermalink}`;
+            shareFacebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodedPermalink}`;
         }
 
         function setLoading(isLoading) {
@@ -1139,8 +1845,12 @@
                 fabGenerate.querySelector('i').classList.add('fa-spin');
                 document.getElementById('no-results').classList.add('hidden');
                 
+                // Hide welcome UI and other content when generating new recommendations
+                welcomeUi.classList.add('hidden');
+                trendingSection.classList.add('hidden');
+                popularSection.classList.add('hidden');
+
                 if (recommendationsGrid.classList.contains('hidden')) {
-                    welcomeUi.classList.add('hidden');
                     movieSkeleton.classList.remove('hidden');
                 } else {
                     recommendationsGrid.classList.add('opacity-50');
@@ -1156,10 +1866,115 @@
                 movieSkeleton.classList.add('hidden');
                 recommendationsGrid.classList.remove('opacity-50');
                 recommendationsGrid.style.pointerEvents = 'auto';
+                // Update FAB visibility after loading, as grid state might have changed
+                updateFabVisibility();
             }
         }
 
         generateBtn.addEventListener('click', getRandomMovie);
+
+        // New: "More Like This" functionality
+        async function getSimilarMovies(seedId, seedMediaType, targetQty = 20) {
+            if (!seedId || !seedMediaType) {
+                showError("No movie/show selected for 'More Like This'.");
+                return;
+            }
+
+            setLoading(true);
+            closeMovieModal(); // Close the modal before showing new results
+
+            try {
+                let pool = [];
+                let excludedIds = new Set();
+                if (currentUser) {
+                    await fetchUserWatchlist(currentUser.uid);
+                    for (const key in userWatchlistCache) {
+                        const item = userWatchlistCache[key];
+                        if ((item.liked || item.watched || item.disliked) && item.media_type === seedMediaType) {
+                            excludedIds.add(item.id);
+                        }
+                    }
+                }
+
+                const recRes = await fetch(`https://api.themoviedb.org/3/${seedMediaType}/${seedId}/recommendations?api_key=${TMDB_API_KEY}&language=en-US&page=1`);
+                if (recRes.ok) {
+                    const recData = await recRes.json();
+                    pool = recData.results || [];
+                }
+
+                // If initial recommendations are not enough, try popular items from the same genre
+                if (pool.length < targetQty) {
+                    const seedDetails = await fetchFullDetails(seedId, seedMediaType);
+                    if (seedDetails && seedDetails.genres.length > 0) {
+                        const genreName = seedDetails.genres[0]; // Use the first genre as a primary filter
+                        const genreId = Object.keys(genreMap).find(key => genreMap[key] === genreName);
+                        if (genreId) {
+                            let discoverUrl = `https://api.themoviedb.org/3/discover/${seedMediaType}?api_key=${TMDB_API_KEY}&language=en-US&include_adult=false&with_genres=${genreId}&sort_by=popularity.desc`;
+                            const discRes = await fetch(`${discoverUrl}&page=1`);
+                            if (discRes.ok) {
+                                const discData = await discRes.json();
+                                const newResults = discData.results || [];
+                                const existingIds = new Set(pool.map(m => m.id));
+                                newResults.forEach(item => {
+                                    if (!existingIds.has(item.id)) {
+                                        pool.push(item);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Filter out already interacted items and the seed item itself
+                const filteredPool = pool.filter(item => !excludedIds.has(item.id) && item.id !== seedId);
+                const selectedBriefs = filteredPool.sort(() => 0.5 - Math.random()).slice(0, targetQty);
+                backgroundCacheProcess(filteredPool.slice(0, 50)); 
+
+                if (selectedBriefs.length === 0) {
+                    document.getElementById('no-results').classList.remove('hidden');
+                    recommendationsGrid.classList.add('hidden');
+                    throw new Error("No similar items found.");
+                } else {
+                    document.getElementById('no-results').classList.add('hidden');
+                }
+
+                const moviePromises = selectedBriefs.map(async (brief) => {
+                    const docId = `${seedMediaType}_${brief.id}`;
+                    const docRef = doc(db, "movies", docId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) return docSnap.data();
+                    
+                    const full = await fetchFullDetails(brief.id, seedMediaType);
+                    if (full) {
+                        try {
+                            await setDoc(doc(db, "movies", docId), full);
+                            updateCacheCount();
+                        } catch(e) {}
+                        return full;
+                    }
+                    return null;
+                });
+
+                const finalMovies = (await Promise.all(moviePromises)).filter(m => m !== null);
+                if (finalMovies.length === 0) throw new Error("Could not retrieve details for similar items.");
+                
+                saveToLastRecs(finalMovies);
+                addToHistory(finalMovies);
+                displayRecommendationGrid(finalMovies);
+
+            } catch (error) {
+                console.error("More Like This error:", error);
+                showError(error.message || "Failed to find similar items.");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        moreLikeThisBtn.addEventListener('click', () => { // New: More Like This listener
+            if (currentModalData) {
+                getSimilarMovies(currentModalData.id, currentModalData.media_type, parseInt(filterQty.value) || 20);
+            }
+        });
     </script>
 </body>
 </html>

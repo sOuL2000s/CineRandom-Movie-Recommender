@@ -1,0 +1,15 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer rounded square background, matching the app's base background color -->
+  <rect x="0" y="0" width="256" height="256" rx="56" fill="#0F172A"/>
+
+  <!-- Define a linear gradient for the play button to match CineRandom's branding -->
+  <defs>
+    <linearGradient id="cineRandomIconGradient" x1="70" y1="70" x2="190" y2="186" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/> <!-- Corresponds to Tailwind's blue-400 for a lighter start -->
+      <stop offset="1" stop-color="#8B5CF6"/> <!-- Corresponds to Tailwind's purple-600 for a stronger end, similar to primary/accent combo -->
+    </linearGradient>
+  </defs>
+
+  <!-- Main play button shape, filled with the defined gradient -->
+  <path d="M90 70 L190 128 L90 186 Z" fill="url(#cineRandomIconGradient)"/>
+</svg>
